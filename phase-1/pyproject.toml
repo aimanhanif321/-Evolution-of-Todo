@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "todo-cli"
+version = "1.0.0"
+description = "A command-line interface for managing tasks"
+requires-python = ">=3.13"
+dependencies = ["rich>=13.0.0"]
+readme = "README.md"
+license = { text = "MIT" }
+keywords = ["todo", "cli", "task", "management"]
+authors = [
+    { name = "Evolution of Todos Team" }
+]
+
+[project.scripts]
+todo = "todo.cli:main"
+todo-interactive = "todo.interactive:launch"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/todo"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src/todo", "/README.md", "/pyproject.toml"]
+
+[tool.pyright]
+pythonVersion = "3.13"
+typeCheckingMode = "basic"

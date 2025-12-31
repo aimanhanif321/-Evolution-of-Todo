@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(python:*)",
+      "Bash(PYTHONPATH=\"src\" python:*)",
+      "Bash(printf:*)",
+      "Bash(PYTHONPATH=src python:*)"
+    ]
+  }
+}
