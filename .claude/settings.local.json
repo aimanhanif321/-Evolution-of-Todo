@@ -5,7 +5,17 @@
       "Bash(python:*)",
       "Bash(PYTHONPATH=\"src\" python:*)",
       "Bash(printf:*)",
-      "Bash(PYTHONPATH=src python:*)"
+      "Bash(PYTHONPATH=src python:*)",
+      "Bash(dir /b \"D:\\\\quater4\\\\hachthone-ll\\\\evolution-of-todos\")",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build:*)",
+      "Bash(ls:*)",
+      "Bash(npm run build:backend:*)",
+      "Bash(git fetch --all --prune)",
+      "Bash(git checkout -b 002-fullstack-todo-app)",
+      "Bash(git add specs/002-fullstack-todo-app/)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Add Taskora full-stack todo web application specification\n\n- Create comprehensive specification for the Taskora Phase II application\n- Define user stories for authentication, task management, and security\n- Specify functional requirements for multi-user isolation and API behavior\n- Establish success criteria for user experience and system performance\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)"
     ]
   }
 }
