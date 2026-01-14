@@ -34,13 +34,27 @@ app = FastAPI(
 )
 
 
-@app.on_event("startup")
-def startup():
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT 1")).all()
-        print("✅ NEON DB CONNECTED:", result)
+# @app.on_event("startup")
+# def startup():
+#     with engine.connect() as conn:
+#         result = conn.execute(text("SELECT 1")).all()
+#         print("✅ NEON DB CONNECTED:", result)
 
-    create_db_and_tables()
+#     create_db_and_tables()
+# Startup event
+@app.on_event("startup")
+async def startup():
+    try:
+        with engine.connect() as conn:
+            result = conn.execute(text("SELECT 1")).all()
+            print("✅ NEON DB CONNECTED:", result)
+        # Optional: create tables, but wrap in try/except
+        try:
+            create_db_and_tables()
+        except Exception as e:
+            print("⚠ Tables creation skipped:", e)
+    except Exception as e:
+        print("❌ DB Connection Failed:", e)
 
 # --- Exception handler ---
 @app.exception_handler(Exception)
@@ -53,7 +67,8 @@ async def general_exception_handler(request, exc):
 
 # --- CORS middleware ---
 origins = [
-    "http://localhost:3000",  # frontend dev
+    "http://localhost:3000",
+     " https://evolution-of-todo-blond.vercel.app"  # frontend dev
 ]
 
 app.add_middleware(
