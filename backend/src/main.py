@@ -45,14 +45,10 @@ app = FastAPI(
 @app.on_event("startup")
 async def startup():
     try:
+        # Fast DB connectivity check
         with engine.connect() as conn:
             result = conn.execute(text("SELECT 1")).all()
             print("✅ NEON DB CONNECTED:", result)
-        # Optional: create tables, but wrap in try/except
-        try:
-            create_db_and_tables()
-        except Exception as e:
-            print("⚠ Tables creation skipped:", e)
     except Exception as e:
         print("❌ DB Connection Failed:", e)
 
@@ -68,7 +64,7 @@ async def general_exception_handler(request, exc):
 # --- CORS middleware ---
 origins = [
     "http://localhost:3000",
-     " https://evolution-of-todo-blond.vercel.app"  # frontend dev
+    "https://evolution-of-todo-blond.vercel.app"  # frontend dev
 ]
 
 app.add_middleware(
@@ -90,5 +86,5 @@ def read_root():
     return {"message": "Welcome to Taskora API"}
 
 @app.get("/health")
-def health_check():
+async def health_check():
     return {"status": "healthy"}
