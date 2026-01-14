@@ -1,0 +1,923 @@
+[00:00:05.259] Server  LOG      ✓ Ready in 3.9s
+[00:00:28.100] Server  LOG      ○ Compiling / ...
+[00:00:39.939] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:53.836] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[00:00:53.837] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[00:09:55.577] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:10:09.444] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[00:10:12.581] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:15:39.911] Server  LOG      ✓ Compiled in 925ms
+[00:15:41.032] Server  LOG      ✓ Compiled in 630ms
+[00:15:56.072] Server  LOG      ✓ Compiled in 85ms
+[00:17:52.333] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[00:17:52.457] Server  WARN     ⚠ Fast Refresh had to perform a full reload when ./frontend/src/context/AuthContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[00:17:52.678] Server  WARN     ⚠ Fast Refresh had to perform a full reload when ./frontend/src/context/AuthContext.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+[00:17:52.678] Browser ERROR   ./frontend/src/context/AuthContext.tsx:55:9
+Ecmascript file had an error
+  53 |     router.push("/dashboard");
+  54 |   };
+> 55 |   const login = (token: string, user: User) => {
+     |         ^^^^^
+  56 |   setToken(token);
+  57 |   setUser(user);
+  58 |   localStorage.setItem("token", token);
+
+the name `login` is defined multiple times
+
+Import traces:
+  Server Component:
+    ./frontend/src/context/AuthContext.tsx
+    ./frontend/src/app/layout.tsx
+
+  Client Component Browser:
+    ./frontend/src/context/AuthContext.tsx [Client Component Browser]
+    ./frontend/src/app/page.tsx [Client Component Browser]
+    ./frontend/src/app/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/context/AuthContext.tsx [Client Component SSR]
+    ./frontend/src/app/page.tsx [Client Component SSR]
+    ./frontend/src/app/page.tsx [Server Component]
+[00:17:54.808] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:17:59.686] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[00:21:15.855] Server  LOG      ✓ Compiled in 443ms
+[00:21:17.036] Browser ERROR   ./frontend/src/lib/api.ts:13:3
+Parsing ecmascript source code failed
+  11 | )
+  12 |     token?: string
+> 13 |   ): Promise<T> {
+     |   ^
+  14 |     const headers: HeadersInit = { "Content-Type": "application/json" };
+  15 |     if (token) headers["Authorization"] = `Bearer ${token}`;
+  16 |
+
+Unexpected token `)`. Expected identifier, string literal, numeric literal or [ for the computed key
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/lib/api.ts [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/lib/api.ts [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:21:25.864] Server  LOG      ✓ Compiled in 36ms
+[00:21:26.036] Browser ERROR   ./frontend/src/lib/api.ts:13:3
+Parsing ecmascript source code failed
+  11 | )
+  12 |     token?: string
+> 13 |   : Promise<T> {
+     |   ^
+  14 |     const headers: HeadersInit = { "Content-Type": "application/json" };
+  15 |     if (token) headers["Authorization"] = `Bearer ${token}`;
+  16 |
+
+Unexpected token `:`. Expected identifier, string literal, numeric literal or [ for the computed key
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/lib/api.ts [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/lib/api.ts [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:21:40.042] Server  LOG      ✓ Compiled in 34ms
+[00:21:41.109] Browser ERROR   ./frontend/src/lib/api.ts:9:3
+Parsing ecmascript source code failed
+   7 |  
+   8 |     token?: string
+>  9 |   ): Promise<T> {
+     |   ^
+  10 |     const headers: HeadersInit = { "Content-Type": "application/json" };
+  11 |     if (token) headers["Authorization"] = `Bearer ${token}`;
+  12 |
+
+Unexpected token `)`. Expected identifier, string literal, numeric literal or [ for the computed key
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/lib/api.ts [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/lib/api.ts [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:21:41.720] Server  LOG      ✓ Compiled in 231ms
+[00:21:50.494] Server  LOG      ✓ Compiled in 176ms
+[00:21:51.036] Browser ERROR   ./frontend/src/lib/api.ts:11:3
+Parsing ecmascript source code failed
+   9 |   method: RequestMethod,
+  10 |   body?: any
+> 11 | ) Promise<T> {
+     |   ^^^^^^^
+  12 |     const headers: HeadersInit = { "Content-Type": "application/json" };
+  13 |     if (token) headers["Authorization"] = `Bearer ${token}`;
+  14 |
+
+Expected '{', got 'Promise'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/lib/api.ts [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/lib/api.ts [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:21:53.216] Server  LOG      ✓ Compiled in 175ms
+[00:21:54.041] Browser ERROR   ./frontend/src/lib/api.ts:7:14
+Parsing ecmascript source code failed
+   5 |
+   6 | class APIClient {
+>  7 |   Promise<T> {
+     |              ^
+   8 |     const headers: HeadersInit = { "Content-Type": "application/json" };
+   9 |     if (token) headers["Authorization"] = `Bearer ${token}`;
+  10 |
+
+Expected '(', got '{'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/lib/api.ts [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/lib/api.ts [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:22:58.888] Server  LOG      ✓ Compiled in 623ms
+[00:23:00.703] Server  LOG      ✓ Compiled in 110ms
+[00:23:30.406] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:23:41.111] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[00:24:40.403] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:27:56.172] Server  LOG      ✓ Compiled in 1328ms
+[00:28:14.683] Server  LOG      ✓ Compiled in 148ms
+[00:28:21.891] Server  LOG      ✓ Compiled in 850ms
+[00:28:22.716] Server  LOG      ✓ Compiled in 164ms
+[00:29:04.868] Server  LOG      ✓ Compiled in 139ms
+[00:29:06.359] Server  LOG      ✓ Compiled in 147ms
+[00:29:23.707] Server  LOG      ✓ Compiled in 110ms
+[00:29:25.554] Server  LOG      ✓ Compiled in 149ms
+[00:29:51.573] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:31:38.308] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:33:00.090] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:35:17.741] Server  LOG      ✓ Compiled in 780ms
+[00:35:17.952] Server  LOG      ✓ Compiled in 325ms
+[00:35:51.067] Server  LOG      ✓ Compiled in 1104ms
+[00:35:51.516] Server  LOG      ✓ Compiled in 310ms
+[00:35:53.043] Server  LOG      ✓ Compiled in 112ms
+[00:35:57.835] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:39:11.359] Server  LOG      ○ Compiling /_not-found/page ...
+[00:39:37.923] Browser ERROR   uncaughtError: Error: An unknown Component is an async Client Component. Only Server Components can be async at the moment. This error is often caused by accidentally adding `'use client'` to a module that was originally written for the server.
+[00:39:48.324] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:41:05.715] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:41:21.201] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:41:35.255] Browser ERROR   Failed to save task {}
+[00:48:25.895] Server  LOG      ✓ Compiled in 1529ms
+[00:48:27.054] Browser ERROR   ./frontend/src/components/TaskForm.tsx:178:7
+Parsing ecmascript source code failed
+  176 |       onSuccess();
+  177 |       onClose();
+> 178 |     } catch (err: any) {
+      |       ^^^^^
+  179 |       console.error("Failed to save task", err);
+  180 |       alert(err.message || "Failed to save task");
+  181 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:48:33.057] Browser ERROR   ./frontend/src/components/TaskForm.tsx:179:7
+Parsing ecmascript source code failed
+  177 |       onSuccess();
+  178 |       onClose();
+> 179 |     } catch (err: any) {
+      |       ^^^^^
+  180 |       console.error("Failed to save task", err);
+  181 |       alert(err.message || "Failed to save task");
+  182 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:48:34.052] Browser ERROR   ./frontend/src/components/TaskForm.tsx:201:7
+Parsing ecmascript source code failed
+  199 |       onSuccess();
+  200 |       onClose();
+> 201 |     } catch (err: any) {
+      |       ^^^^^
+  202 |       console.error("Failed to save task", err);
+  203 |       alert(err.message || "Failed to save task");
+  204 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:48:38.033] Browser ERROR   ./frontend/src/components/TaskForm.tsx:179:7
+Parsing ecmascript source code failed
+  177 |       onSuccess();
+  178 |       onClose();
+> 179 |     } catch (err: any) {
+      |       ^^^^^
+  180 |       console.error("Failed to save task", err);
+  181 |       alert(err.message || "Failed to save task");
+  182 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:48:42.146] Server  LOG      ✓ Compiled in 443ms
+[00:48:46.119] Server  LOG      ✓ Compiled in 121ms
+[00:48:47.368] Server  LOG      ✓ Compiled in 149ms
+[00:48:54.382] Browser ERROR   ./frontend/src/components/TaskForm.tsx:157:7
+Parsing ecmascript source code failed
+  155 |       onSuccess();
+  156 |       onClose();
+> 157 |     } catch (err: any) {
+      |       ^^^^^
+  158 |       console.error("Failed to save task", err);
+  159 |       alert(err.message || "Failed to save task");
+  160 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:48:56.268] Server  LOG      ✓ Compiled in 88ms
+[00:48:57.031] Browser ERROR   ./frontend/src/components/TaskForm.tsx:178:7
+Parsing ecmascript source code failed
+  176 |       onSuccess();
+  177 |       onClose();
+> 178 |     } catch (err: any) {
+      |       ^^^^^
+  179 |       console.error("Failed to save task", err);
+  180 |       alert(err.message || "Failed to save task");
+  181 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:49:01.038] Browser ERROR   ./frontend/src/components/TaskForm.tsx:179:7
+Parsing ecmascript source code failed
+  177 |       onSuccess();
+  178 |       onClose();
+> 179 |     } catch (err: any) {
+      |       ^^^^^
+  180 |       console.error("Failed to save task", err);
+  181 |       alert(err.message || "Failed to save task");
+  182 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:49:03.032] Browser ERROR   ./frontend/src/components/TaskForm.tsx:201:7
+Parsing ecmascript source code failed
+  199 |       onSuccess();
+  200 |       onClose();
+> 201 |     } catch (err: any) {
+      |       ^^^^^
+  202 |       console.error("Failed to save task", err);
+  203 |       alert(err.message || "Failed to save task");
+  204 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:49:14.798] Server  LOG      ✓ Compiled in 98ms
+[00:49:25.861] Browser ERROR   Failed to save task {}
+[00:49:30.635] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:50:13.765] Server  LOG      ✓ Compiled in 195ms
+[00:50:31.130] Server  LOG      ✓ Compiled in 110ms
+[00:50:50.592] Server  LOG      ✓ Compiled in 87ms
+[00:51:33.859] Browser ERROR   Failed to save task {}
+[00:51:34.162] Browser ERROR   ./frontend/src/components/TaskForm.tsx:179:7
+Parsing ecmascript source code failed
+  177 |       onSuccess();
+  178 |       onClose();
+> 179 |     } catch (err: any) {
+      |       ^^^^^
+  180 |       console.error("Failed to save task", err);
+  181 |       alert(err.message || "Failed to save task");
+  182 |     } finally {
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:51:34.162] Browser ERROR   ./frontend/src/components/TaskForm.tsx:175:1
+Parsing ecmascript source code failed
+  173 |   //       await APIClient.post(`/api/${user.id}/tasks`, payload, token);
+  174 |   //     }
+> 175 | import { useAuth } from "@/context/AuthContext";
+      | ^^^^^^
+  176 | import APIClient from "@/lib/api";
+  177 |
+  178 | const { token } = useAuth();
+
+'import', and 'export' cannot be used outside of module code
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[00:51:48.159] Browser ERROR   Failed to save task {}
+[00:52:18.744] Server  LOG      ✓ Compiled in 1481ms
+[00:53:47.835] Server  LOG      ✓ Compiled in 107ms
+[00:53:49.281] Server  LOG      ✓ Compiled in 85ms
+[00:53:56.313] Server  LOG      ✓ Compiled in 99ms
+[00:54:00.171] Server  LOG      ✓ Compiled in 53ms
+[00:54:02.081] Server  LOG      ✓ Compiled in 71ms
+[00:54:03.584] Server  LOG      ✓ Compiled in 122ms
+[00:56:41.113] Browser ERROR   Failed to save task {}
+[01:01:07.074] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:01:16.318] Browser ERROR   Failed to fetch tasks Failed to fetch
+[01:01:27.895] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:01:33.155] Browser ERROR   Failed to fetch tasks Failed to fetch
+[01:02:09.258] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:02:12.964] Browser ERROR   Failed to fetch tasks Failed to fetch
+[01:08:12.904] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:08:19.986] Browser ERROR   Failed to fetch tasks Failed to fetch
+[01:11:42.971] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:11:49.700] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[01:11:59.151] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[01:11:59.151] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[01:12:13.499] Browser ERROR   Failed to fetch tasks Failed to fetch
+[01:12:13.499] Browser ERROR   Failed to fetch tasks Failed to fetch
+[01:12:31.456] Browser ERROR   Failed to save task {}
+[01:16:22.882] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:16:26.425] Browser ERROR   Failed to fetch tasks Failed to fetch
+[01:19:53.339] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:20:11.238] Browser ERROR   Failed to save task {}
+[01:21:58.113] Server  LOG      ✓ Compiled in 1860ms
+[01:22:02.866] Server  LOG      ✓ Compiled in 1467ms
+[01:22:05.432] Server  LOG      ✓ Compiled in 292ms
+[01:22:06.136] Browser ERROR   ./frontend/src/components/TaskForm.tsx:169:13
+Ecmascript file had an error
+  167 |         completed: false, // default
+  168 |       };
+> 169 |       const payload = {
+      |             ^^^^^^^
+  170 |   title: title.trim(),
+  171 |   description: description.trim(),
+  172 |   completed: editTask ? editTask.completed : false, // ✅ add completed
+
+the name `payload` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:22:06.137] Browser ERROR   ./frontend/src/components/TaskForm.tsx:182:7
+Parsing ecmascript source code failed
+  180 |       console.error("Failed to save task", err);
+  181 |       alert(err.message || "Failed to save task");
+> 182 |     } finally {
+      |       ^^^^^^^
+  183 |       setLoading(false);
+  184 |     }
+  185 |   };
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:22:06.137] Browser ERROR   ./frontend/src/components/TaskForm.tsx:164:7
+Parsing ecmascript source code failed
+  162 |
+  163 |     try
+> 164 |       const payload = {
+      |       ^^^^^
+  165 |   title: title.trim(),
+  166 |   description: description.trim(),
+  167 |   completed: editTask ? editTask.completed : false, // ✅ add completed
+
+Expected '{', got 'const'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:22:13.873] Server  LOG      ✓ Compiled in 199ms
+[01:22:14.247] Browser ERROR   ./frontend/src/components/TaskForm.tsx:169:13
+Ecmascript file had an error
+  167 |         completed: false, // default
+  168 |       };
+> 169 |       const payload = {
+      |             ^^^^^^^
+  170 |   title: title.trim(),
+  171 |   description: description.trim(),
+  172 |   completed: editTask ? editTask.completed : false, // ✅ add completed
+
+the name `payload` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:22:16.593] Server  LOG      ✓ Compiled in 277ms
+[01:22:18.041] Server  LOG      ✓ Compiled in 202ms
+[01:22:26.813] Server  LOG      ✓ Compiled in 184ms
+[01:22:28.038] Server  LOG      ✓ Compiled in 187ms
+[01:23:20.456] Server  LOG      ✓ Compiled in 113ms
+[01:23:42.073] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:23:52.583] Browser ERROR   Failed to save task {}
+[01:25:16.439] Browser ERROR   Failed to save task {}
+[01:26:41.883] Server  LOG      ✓ Compiled in 1747ms
+[01:26:44.025] Browser ERROR   ./frontend/src/components/TaskForm.tsx:128:22
+Parsing ecmascript source code failed
+  126 |   title: string;
+  127 |   description?: string;
+> 128 |   completed: editTask?.completed ?? false,  // ✅ use ?? fallback
+      |                      ^
+  129 | }
+  130 |
+  131 | interface TaskFormProps {
+
+Expected ';', got '?'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:26:52.038] Server  LOG      ✓ Compiled in 617ms
+[01:27:05.238] Server  LOG      ✓ Compiled in 197ms
+[01:27:36.111] Server  LOG      ✓ Compiled in 503ms
+[01:28:45.350] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:29:32.321] Browser ERROR   Failed to save task {}
+[01:30:02.681] Browser ERROR   Failed to save task {}
+[01:32:22.429] Server  LOG      ✓ Compiled in 1548ms
+[01:32:26.143] Browser ERROR   ./frontend/src/components/TaskForm.tsx:125:27
+Parsing ecmascript source code failed
+  123 |
+  124 | interface Task {
+> 125 |    user_id: Optional[str] = None  # ✅ make optional
+      |                           ^
+  126 |   title: string;
+  127 |   description?: string;
+  128 |   completed: boolean;
+
+Expected ';', got '='
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:32:28.096] Browser ERROR   ./frontend/src/components/TaskForm.tsx:125:21
+Parsing ecmascript source code failed
+  123 |
+  124 | interface Task {
+> 125 |   id: Optional[str] = None  # ✅ make optional
+      |                     ^
+  126 |   title: string;
+  127 |   description?: string;
+  128 |   completed: boolean;
+
+Expected ';', got '='
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:32:32.618] Server  LOG      ✓ Compiled in 359ms
+[01:33:52.731] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:34:29.334] Browser ERROR   Failed to save task {}
+[01:34:56.662] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:35:19.767] Browser ERROR   Failed to save task {}
+[01:36:44.142] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:37:26.915] Browser ERROR   Failed to save task {}
+[01:44:35.849] Server  LOG      ✓ Compiled in 1491ms
+[01:44:38.059] Browser ERROR   ./frontend/src/components/TaskForm.tsx:231:2
+Parsing ecmascript source code failed
+  229 |     </div>
+  230 |   );
+> 231 | }
+      |  ^
+  232 |
+
+Expected '}', got '<eof>'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:44:58.132] Browser ERROR   ./frontend/src/components/TaskForm.tsx:231:2
+Parsing ecmascript source code failed
+  229 |     </div>
+  230 |   );
+> 231 | }
+      |  ^
+  232 |
+
+Expected '}', got '<eof>'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:03.723] Server  LOG      ✓ Compiled in 588ms
+[01:45:04.360] Browser ERROR   ./frontend/src/components/TaskForm.tsx:223:2
+Parsing ecmascript source code failed
+  221 |     </div>
+  222 |   );
+> 223 | }
+      |  ^
+  224 |
+
+Expected '}', got '<eof>'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:04.361] Browser ERROR   ./frontend/src/components/TaskForm.tsx:184:3
+Parsing ecmascript source code failed
+  182 |     }
+  183 |
+> 184 |   return (
+      |   ^
+  185 |     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+  186 |       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
+  187 |         <div className="flex items-center justify-between p-6 border-b">
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:16.086] Server  LOG      ✓ Compiled in 284ms
+[01:45:18.089] Browser ERROR   ./frontend/src/components/TaskForm.tsx:224:2
+Parsing ecmascript source code failed
+  222 |     </div>
+  223 |   );
+> 224 | }
+      |  ^
+  225 |
+
+Expected '}', got '<eof>'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:18.089] Browser ERROR   ./frontend/src/components/TaskForm.tsx:183:4
+Parsing ecmascript source code failed
+  181 |       onClose();
+  182 |   
+> 183 |   };
+      |    ^
+  184 |
+  185 |   return (
+  186 |     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:18.089] Browser ERROR   ./frontend/src/components/TaskForm.tsx:232:2
+Parsing ecmascript source code failed
+  230 |     </div>
+  231 |   );
+> 232 | }
+      |  ^
+  233 |
+
+Expected '}', got '<eof>'
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:18.089] Browser ERROR   ./frontend/src/components/TaskForm.tsx:191:4
+Parsing ecmascript source code failed
+  189 |   alert(msg);
+  190 | }
+> 191 |   };
+      |    ^
+  192 |
+  193 |   return (
+  194 |     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:22.163] Server  LOG      ✓ Compiled in 330ms
+[01:45:27.645] Server  LOG      ✓ Compiled in 192ms
+[01:45:28.908] Server  LOG      ✓ Compiled in 170ms
+[01:45:30.647] Browser ERROR   ./frontend/src/components/TaskForm.tsx:183:3
+Parsing ecmascript source code failed
+  181 |       onClose();
+  182 |     } 
+> 183 |   };
+      |   ^
+  184 |
+  185 |   return (
+  186 |     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./frontend/src/components/TaskForm.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Client Component Browser]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./frontend/src/components/TaskForm.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Client Component SSR]
+    ./frontend/src/components/TaskList.tsx [Server Component]
+    ./frontend/src/app/dashboard/page.tsx [Server Component]
+[01:45:42.957] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:45:49.780] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[01:46:28.537] Browser ERROR   Failed to save task {}
+[01:57:16.255] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:57:38.511] Browser ERROR   Failed to save task {}
+[08:00:04.708] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[08:21:40.469] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[08:21:47.587] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[08:21:52.105] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[08:22:00.320] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[08:22:36.725] Browser ERROR   Failed to delete task {}
+[08:25:24.746] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[08:30:15.091] Server  LOG      ✓ Compiled in 1409ms
+[08:30:18.382] Server  LOG      ✓ Compiled in 337ms
+[08:30:18.911] Server  LOG      ✓ Compiled in 198ms
+[08:30:22.038] Browser ERROR   {}
+[08:30:22.038] Browser ERROR   {}
+[08:30:34.237] Server  LOG      ✓ Compiled in 675ms
+[08:30:35.697] Server  LOG      ✓ Compiled in 818ms
+[08:30:35.705] Browser ERROR   {}
+[08:30:35.705] Browser ERROR   {}
+[08:30:36.215] Browser ERROR   {}
+[08:30:36.215] Browser ERROR   {}
+[08:30:36.535] Server  LOG      ✓ Compiled in 347ms
+[08:33:33.411] Browser ERROR   Failed to toggle task {}
+[08:39:14.238] Server  LOG      ✓ Compiled in 3.3s
+[08:39:14.956] Server  LOG      ✓ Compiled in 338ms
+[08:42:53.526] Server  LOG      ✓ Compiled in 2.6s
+[08:43:00.234] Server  LOG      ✓ Compiled in 439ms
+[08:43:05.208] Browser ERROR   {}
+[08:43:05.208] Browser ERROR   {}
+[08:43:33.267] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[09:30:05.073] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[09:30:17.481] Browser ERROR   Failed to fetch tasks Unauthorized. Please login again.
+[09:30:27.826] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[10:16:52.916] Browser ERROR   Failed to delete task {}
+[13:56:36.177] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[14:10:33.482] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[14:20:01.972] Server  LOG      ○ Compiling /auth/register ...
+[14:22:16.321] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
