@@ -11,8 +11,8 @@ from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 import os
 
-# Load .env file from backend folder
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+# Load .env file from backend folder (one level up from src/)
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), "..", ".env"))
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -34,23 +34,14 @@ app = FastAPI(
 )
 
 
-# @app.on_event("startup")
-# def startup():
-#     with engine.connect() as conn:
-#         result = conn.execute(text("SELECT 1")).all()
-#         print("✅ NEON DB CONNECTED:", result)
-
-#     create_db_and_tables()
-# Startup event
 @app.on_event("startup")
-async def startup():
-    try:
-        # Fast DB connectivity check
-        with engine.connect() as conn:
-            result = conn.execute(text("SELECT 1")).all()
-            print("✅ NEON DB CONNECTED:", result)
-    except Exception as e:
-        print("❌ DB Connection Failed:", e)
+def startup():
+    with engine.connect() as conn:
+        result = conn.execute(text("SELECT 1")).all()
+        print("✅ NEON DB CONNECTED:", result)
+
+    create_db_and_tables()
+
 
 # --- Exception handler ---
 @app.exception_handler(Exception)
