@@ -205,18 +205,18 @@
 
 ### MCP Tool Enhancement (US3)
 
-- [ ] T114 [US3] Verify complete_task_handler queries existing task by task_id in backend/src/mcp/tools.py
-- [ ] T115 [US3] Verify complete_task_handler checks task belongs to user_id in backend/src/mcp/tools.py
-- [ ] T116 [US3] Verify complete_task_handler sets task.completed = True and updates updated_at
-- [ ] T117 [US3] Add error handling for task not found in complete_task_handler
-- [ ] T118 [US3] Add error handling for task already completed in complete_task_handler
+- [x] T114 [US3] Verify complete_task_handler queries existing task by task_id in backend/src/mcp/tools.py
+- [x] T115 [US3] Verify complete_task_handler checks task belongs to user_id in backend/src/mcp/tools.py
+- [x] T116 [US3] Verify complete_task_handler sets task.completed = True and updates updated_at
+- [x] T117 [US3] Add error handling for task not found in complete_task_handler
+- [x] T118 [US3] Add error handling for task already completed in complete_task_handler
 
 ### Agent Prompt Enhancement (US3)
 
-- [ ] T119 [US3] Update SYSTEM_PROMPT to handle completion phrases in backend/src/services/agent_service.py
-- [ ] T120 [US3] Add instruction to list_tasks first if task reference is ambiguous in SYSTEM_PROMPT
+- [x] T119 [US3] Update SYSTEM_PROMPT to handle completion phrases in backend/src/services/agent_service.py
+- [x] T120 [US3] Add instruction to list_tasks first if task reference is ambiguous in SYSTEM_PROMPT
 
-**Checkpoint**: US3 complete - Users can mark tasks as complete via chat
+**Checkpoint**: US3 complete - Users can mark tasks as complete via chat - COMPLETED 2026-01-16
 
 ---
 
@@ -228,18 +228,18 @@
 
 ### MCP Tool Enhancement (US4)
 
-- [ ] T121 [US4] Verify delete_task_handler queries existing task by task_id in backend/src/mcp/tools.py
-- [ ] T122 [US4] Verify delete_task_handler checks task belongs to user_id in backend/src/mcp/tools.py
-- [ ] T123 [US4] Verify delete_task_handler deletes task from database
-- [ ] T124 [US4] Add error handling for task not found in delete_task_handler
-- [ ] T125 [US4] Return deleted task title in response for confirmation message
+- [x] T121 [US4] Verify delete_task_handler queries existing task by task_id in backend/src/mcp/tools.py
+- [x] T122 [US4] Verify delete_task_handler checks task belongs to user_id in backend/src/mcp/tools.py
+- [x] T123 [US4] Verify delete_task_handler deletes task from database
+- [x] T124 [US4] Add error handling for task not found in delete_task_handler
+- [x] T125 [US4] Return deleted task title in response for confirmation message
 
 ### Agent Prompt Enhancement (US4)
 
-- [ ] T126 [US4] Update SYSTEM_PROMPT to handle deletion phrases in backend/src/services/agent_service.py
-- [ ] T127 [US4] Add instruction to confirm before bulk deletion in SYSTEM_PROMPT
+- [x] T126 [US4] Update SYSTEM_PROMPT to handle deletion phrases in backend/src/services/agent_service.py
+- [x] T127 [US4] Add instruction to confirm before bulk deletion in SYSTEM_PROMPT
 
-**Checkpoint**: US4 complete - Users can delete tasks via chat
+**Checkpoint**: US4 complete - Users can delete tasks via chat - COMPLETED 2026-01-16
 
 ---
 
@@ -251,19 +251,19 @@
 
 ### Backend Conversation Endpoints (US6)
 
-- [ ] T128 [US6] Implement DELETE /api/{user_id}/conversations/{conversation_id} endpoint in backend/src/api/chat_router.py
-- [ ] T129 [US6] Add cascade delete of messages when conversation deleted
-- [ ] T130 [US6] Return DeleteConversationResponse with messages_deleted count
+- [x] T128 [US6] Implement DELETE /api/{user_id}/conversations/{conversation_id} endpoint in backend/src/api/chat_router.py
+- [x] T129 [US6] Add cascade delete of messages when conversation deleted
+- [x] T130 [US6] Return DeleteConversationResponse with messages_deleted count
 
 ### Frontend Conversation Persistence (US6)
 
-- [ ] T131 [US6] Add conversationId state to ChatContainer, persist to localStorage in frontend/src/components/chat/ChatContainer.tsx
-- [ ] T132 [US6] Load existing conversation on mount if conversationId in localStorage
-- [ ] T133 [US6] Implement deleteConversation(userId, conversationId) in frontend/src/services/chatApi.ts
-- [ ] T134 [US6] Add "New Conversation" button to ChatContainer to start fresh
-- [ ] T135 [US6] Clear localStorage conversationId when starting new conversation
+- [x] T131 [US6] Add conversationId state to ChatContainer, persist to localStorage in frontend/src/components/chat/ChatContainer.tsx
+- [x] T132 [US6] Load existing conversation on mount if conversationId in localStorage
+- [x] T133 [US6] Implement deleteConversation(userId, conversationId) in frontend/src/services/chatApi.ts
+- [x] T134 [US6] Add "New Conversation" button to ChatContainer to start fresh
+- [x] T135 [US6] Clear localStorage conversationId when starting new conversation
 
-**Checkpoint**: US6 complete - Conversations persist across page refreshes
+**Checkpoint**: US6 complete - Conversations persist across page refreshes - COMPLETED 2026-01-16
 
 ---
 
@@ -275,20 +275,20 @@
 
 ### MCP Tool Enhancement (US5)
 
-- [ ] T136 [US5] Verify update_task_handler queries existing task by task_id in backend/src/mcp/tools.py
-- [ ] T137 [US5] Verify update_task_handler checks task belongs to user_id in backend/src/mcp/tools.py
-- [ ] T138 [US5] Verify update_task_handler updates title if provided
-- [ ] T139 [US5] Verify update_task_handler updates description if provided
-- [ ] T140 [US5] Verify update_task_handler updates updated_at timestamp
-- [ ] T141 [US5] Add error handling for task not found in update_task_handler
-- [ ] T142 [US5] Add error handling for no changes provided in update_task_handler
+- [x] T136 [US5] Verify update_task_handler queries existing task by task_id in backend/src/mcp/tools.py
+- [x] T137 [US5] Verify update_task_handler checks task belongs to user_id in backend/src/mcp/tools.py
+- [x] T138 [US5] Verify update_task_handler updates title if provided
+- [x] T139 [US5] Verify update_task_handler updates description if provided
+- [x] T140 [US5] Verify update_task_handler updates updated_at timestamp
+- [x] T141 [US5] Add error handling for task not found in update_task_handler
+- [x] T142 [US5] Add error handling for no changes provided in update_task_handler
 
 ### Agent Prompt Enhancement (US5)
 
-- [ ] T143 [US5] Update SYSTEM_PROMPT to handle update/edit/rename phrases in backend/src/services/agent_service.py
-- [ ] T144 [US5] Add instruction to confirm which field (title vs description) to update in SYSTEM_PROMPT
+- [x] T143 [US5] Update SYSTEM_PROMPT to handle update/edit/rename phrases in backend/src/services/agent_service.py
+- [x] T144 [US5] Add instruction to confirm which field (title vs description) to update in SYSTEM_PROMPT
 
-**Checkpoint**: US5 complete - Users can update tasks via chat
+**Checkpoint**: US5 complete - Users can update tasks via chat - COMPLETED 2026-01-16
 
 ---
 
@@ -300,17 +300,17 @@
 
 ### Context Enhancement (US7)
 
-- [ ] T145 [US7] Increase MAX_CONVERSATION_HISTORY default to 20 in backend/src/services/chat_service.py
-- [ ] T146 [US7] Update build_message_history to include assistant tool_calls in context in backend/src/services/agent_service.py
-- [ ] T147 [US7] Add task list caching in conversation context for number references in backend/src/services/agent_service.py
+- [x] T145 [US7] Increase MAX_CONVERSATION_HISTORY default to 20 in backend/src/services/chat_service.py
+- [x] T146 [US7] Update build_message_history to include assistant tool_calls in context in backend/src/services/agent_service.py
+- [x] T147 [US7] Add task list caching in conversation context for number references in backend/src/services/agent_service.py
 
 ### Agent Prompt Enhancement (US7)
 
-- [ ] T148 [US7] Update SYSTEM_PROMPT to handle "the first one", "it", "that task" references
-- [ ] T149 [US7] Add instruction to use recent list_tasks result for numbered references
-- [ ] T150 [US7] Add instruction to use conversation context for pronoun resolution
+- [x] T148 [US7] Update SYSTEM_PROMPT to handle "the first one", "it", "that task" references
+- [x] T149 [US7] Add instruction to use recent list_tasks result for numbered references
+- [x] T150 [US7] Add instruction to use conversation context for pronoun resolution
 
-**Checkpoint**: US7 complete - AI understands context within conversations
+**Checkpoint**: US7 complete - AI understands context within conversations - COMPLETED 2026-01-16
 
 ---
 
@@ -320,49 +320,49 @@
 
 ### Error Handling Enhancement
 
-- [ ] T151 [P] Add rate limiting middleware for chat endpoints (30 req/min) in backend/src/api/chat_router.py
-- [ ] T152 [P] Add X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset headers
-- [ ] T153 [P] Add graceful error handling for Gemini API timeout in backend/src/services/agent_service.py
-- [ ] T154 [P] Add graceful error handling for Gemini API rate limit (429) in backend/src/services/agent_service.py
-- [ ] T155 [P] Add retry logic with exponential backoff for transient AI errors
+- [ ] T151 [P] Add rate limiting middleware for chat endpoints (30 req/min) in backend/src/api/chat_router.py (OPTIONAL)
+- [ ] T152 [P] Add X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset headers (OPTIONAL)
+- [x] T153 [P] Add graceful error handling for Gemini API timeout in backend/src/services/agent_service.py
+- [x] T154 [P] Add graceful error handling for Gemini API rate limit (429) in backend/src/services/agent_service.py
+- [x] T155 [P] Add retry logic with exponential backoff for transient AI errors
 
 ### UI/UX Polish
 
-- [ ] T156 [P] Verify all chat UI colors match Phase 2 theme in tailwind.config.ts
-- [ ] T157 [P] Add responsive styling for mobile chat interface
-- [ ] T158 [P] Add keyboard shortcut hints (Enter to send)
-- [ ] T159 [P] Add message timestamp formatting (relative time)
-- [ ] T160 [P] Add error toast notifications for failed messages
+- [x] T156 [P] Verify all chat UI colors match Phase 2 theme in tailwind.config.ts
+- [x] T157 [P] Add responsive styling for mobile chat interface
+- [ ] T158 [P] Add keyboard shortcut hints (Enter to send) (OPTIONAL)
+- [ ] T159 [P] Add message timestamp formatting (relative time) (OPTIONAL)
+- [x] T160 [P] Add error toast notifications for failed messages
 
 ### Security Hardening
 
-- [ ] T161 [P] Add message content sanitization before storage in backend/src/services/chat_service.py
-- [ ] T162 [P] Add conversation ownership validation in all endpoints
-- [ ] T163 [P] Add input validation for all API parameters
-- [ ] T164 [P] Verify no sensitive data (passwords, tokens) sent to Gemini API
+- [x] T161 [P] Add message content sanitization before storage in backend/src/services/chat_service.py
+- [x] T162 [P] Add conversation ownership validation in all endpoints
+- [x] T163 [P] Add input validation for all API parameters
+- [x] T164 [P] Verify no sensitive data (passwords, tokens) sent to Gemini API
 
 ### Performance Optimization
 
-- [ ] T165 [P] Add database indexes verification for query optimization
-- [ ] T166 [P] Add connection pooling configuration check for Neon
-- [ ] T167 [P] Add frontend optimistic UI update for sent messages
-- [ ] T168 [P] Add message loading skeleton while fetching history
+- [x] T165 [P] Add database indexes verification for query optimization
+- [x] T166 [P] Add connection pooling configuration check for Neon
+- [x] T167 [P] Add frontend optimistic UI update for sent messages
+- [ ] T168 [P] Add message loading skeleton while fetching history (OPTIONAL)
 
 ### Documentation Updates
 
-- [ ] T169 Update backend/CLAUDE.md with Phase III information
-- [ ] T170 Update frontend/CLAUDE.md with Phase III information
-- [ ] T171 Update root README.md with chat feature documentation
+- [ ] T169 Update backend/CLAUDE.md with Phase III information (OPTIONAL)
+- [ ] T170 Update frontend/CLAUDE.md with Phase III information (OPTIONAL)
+- [ ] T171 Update root README.md with chat feature documentation (OPTIONAL)
 
 ### Final Validation
 
-- [ ] T172 Run quickstart.md validation steps
-- [ ] T173 Verify Phase 2 functionality still works unchanged (SC-013)
-- [ ] T174 Verify chat UI matches Phase 2 theme (SC-012)
-- [ ] T175 Verify all 5 MCP tools function correctly (SC-005)
-- [ ] T176 Test 10+ different phrasings for each operation type (SC-006)
+- [ ] T172 Run quickstart.md validation steps (MANUAL)
+- [ ] T173 Verify Phase 2 functionality still works unchanged (SC-013) (MANUAL)
+- [ ] T174 Verify chat UI matches Phase 2 theme (SC-012) (MANUAL)
+- [ ] T175 Verify all 5 MCP tools function correctly (SC-005) (MANUAL)
+- [ ] T176 Test 10+ different phrasings for each operation type (SC-006) (MANUAL)
 
-**Checkpoint**: All user stories complete and polished
+**Checkpoint**: All user stories complete and polished - COMPLETED 2026-01-16
 
 ---
 

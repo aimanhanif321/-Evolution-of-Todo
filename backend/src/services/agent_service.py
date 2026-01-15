@@ -7,16 +7,22 @@ task management. Implements tool calling for MCP operations.
 
 import os
 import logging
+import asyncio
 from typing import Optional, List, Any
 from datetime import datetime
 
 import google.generativeai as genai
 from google.generativeai.types import FunctionDeclaration, Tool
+from google.api_core import exceptions as google_exceptions
 
 from ..mcp.tools import TOOLS, execute_tool
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Retry configuration (T155)
+MAX_RETRIES = 3
+BASE_DELAY = 1.0  # seconds
 
 
 # ============================================================================
@@ -62,8 +68,39 @@ EXAMPLES:
 - "Add a task to buy groceries" -> Use add_task with title "buy groceries"
 - "Show my tasks" -> Use list_tasks with status "all"
 - "Mark the first task as done" -> First use list_tasks, then complete_task with the first task's ID
+- "Complete task 3" -> First use list_tasks to get IDs, then complete_task
+- "Done with the grocery task" -> First use list_tasks to find the task, then complete_task
+- "I finished buying groceries" -> First use list_tasks to find the matching task, then complete_task
+- "Check off the meeting task" -> First use list_tasks to find "meeting", then complete_task
 - "Delete task 3" -> First use list_tasks to get IDs, then delete_task
 - "What's pending?" -> Use list_tasks with status "pending"
+
+COMPLETION PHRASES TO RECOGNIZE:
+- "mark as done", "mark it done", "mark complete", "mark as complete"
+- "complete", "finish", "done with", "finished"
+- "check off", "tick off", "cross off"
+- When user says "it" or "that task", refer to the most recently mentioned task
+
+DELETION PHRASES TO RECOGNIZE:
+- "delete", "remove", "get rid of", "trash"
+- "clear", "cancel", "drop"
+- When deleting multiple tasks (e.g., "delete all completed tasks"), confirm with the user before proceeding
+- IMPORTANT: Never delete tasks without user confirmation if the request is ambiguous
+
+UPDATE/EDIT PHRASES TO RECOGNIZE:
+- "update", "edit", "change", "modify", "rename"
+- "set the title to", "change title to", "rename to"
+- "set description to", "add description", "change description"
+- When user wants to update a task, ask which field (title or description) if not clear
+- First use list_tasks to find the task, then update_task with the changes
+
+MULTI-TURN CONTEXT HANDLING:
+- Remember the task list from the most recent list_tasks call in this conversation
+- When user says "the first one", "the second one", etc., use the task order from the last list_tasks result
+- When user says "it", "that task", or "this one", refer to the most recently mentioned or acted-upon task
+- If user gives a number like "task 1" or "number 1", first call list_tasks to verify the correct task ID
+- Use conversation context to understand which task the user is referring to
+- If the reference is ambiguous, politely ask for clarification with the current task list
 
 Always be helpful and make task management feel effortless!"""
 
@@ -121,13 +158,37 @@ def build_message_history(messages: List[dict]) -> List[dict]:
     for msg in messages:
         role = msg.get("role", "user")
         content = msg.get("content", "")
+        tool_calls = msg.get("tool_calls")
 
         # Map our roles to Gemini roles
         gemini_role = "user" if role == "user" else "model"
 
+        # Include tool_calls context for assistant messages (T146)
+        # This helps the AI understand what actions were taken previously
+        parts = [content]
+        if tool_calls and gemini_role == "model":
+            tool_context = []
+            for tc in tool_calls:
+                tool_name = tc.get("tool", "unknown")
+                result = tc.get("result", {})
+                # Include relevant task info from tool results
+                if tool_name == "list_tasks" and "tasks" in result:
+                    tasks = result["tasks"]
+                    if tasks:
+                        task_list = ", ".join([f"#{t.get('task_id', '?')}: {t.get('title', 'Untitled')}" for t in tasks[:10]])
+                        tool_context.append(f"[Listed tasks: {task_list}]")
+                elif tool_name in ["add_task", "complete_task", "delete_task", "update_task"]:
+                    task_id = result.get("task_id")
+                    title = result.get("title")
+                    status = result.get("status")
+                    if task_id and title:
+                        tool_context.append(f"[{tool_name}: #{task_id} '{title}' - {status}]")
+            if tool_context:
+                parts.append("\n".join(tool_context))
+
         history.append({
             "role": gemini_role,
-            "parts": [content]
+            "parts": parts
         })
 
     return history
@@ -278,6 +339,30 @@ async def generate_response(
 
         return text_response, tool_calls
 
+    except google_exceptions.DeadlineExceeded as e:
+        # T153: Handle Gemini API timeout
+        logger.error(f"Gemini API timeout: {e}")
+        return (
+            "I'm taking too long to think. Please try a simpler request or try again.",
+            []
+        )
+
+    except google_exceptions.ResourceExhausted as e:
+        # T154: Handle rate limit (429)
+        logger.warning(f"Gemini API rate limited: {e}")
+        return (
+            "I'm getting too many requests right now. Please wait a moment and try again.",
+            []
+        )
+
+    except google_exceptions.ServiceUnavailable as e:
+        # T155: Transient error - could retry
+        logger.warning(f"Gemini API unavailable: {e}")
+        return (
+            "The AI service is temporarily unavailable. Please try again in a moment.",
+            []
+        )
+
     except Exception as e:
         logger.error(f"Error generating response: {e}")
         # Return user-friendly error message
@@ -286,3 +371,44 @@ async def generate_response(
             "Please try again in a moment.",
             []
         )
+
+
+async def generate_response_with_retry(
+    user_id: str,
+    messages: List[dict],
+    user_message: str,
+    max_retries: int = MAX_RETRIES
+) -> tuple[str, List[dict]]:
+    """
+    Generate AI response with retry logic for transient errors (T155).
+
+    Uses exponential backoff for retries on rate limits and service unavailability.
+    """
+    last_error = None
+
+    for attempt in range(max_retries):
+        try:
+            return await generate_response(user_id, messages, user_message)
+        except google_exceptions.ResourceExhausted as e:
+            # Rate limited - wait and retry
+            last_error = e
+            delay = BASE_DELAY * (2 ** attempt)
+            logger.warning(f"Rate limited, retrying in {delay}s (attempt {attempt + 1}/{max_retries})")
+            await asyncio.sleep(delay)
+        except google_exceptions.ServiceUnavailable as e:
+            # Service unavailable - wait and retry
+            last_error = e
+            delay = BASE_DELAY * (2 ** attempt)
+            logger.warning(f"Service unavailable, retrying in {delay}s (attempt {attempt + 1}/{max_retries})")
+            await asyncio.sleep(delay)
+        except Exception as e:
+            # Non-retryable error
+            logger.error(f"Non-retryable error: {e}")
+            raise
+
+    # All retries exhausted
+    logger.error(f"All {max_retries} retries failed: {last_error}")
+    return (
+        "I'm experiencing issues right now. Please try again later.",
+        []
+    )

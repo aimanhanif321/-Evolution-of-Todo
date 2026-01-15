@@ -117,6 +117,25 @@ async def get_conversation_messages(
 # Message Storage
 # ============================================================================
 
+def sanitize_content(content: str) -> str:
+    """
+    Sanitize message content before storage (T161).
+
+    Removes potentially harmful content while preserving user intent.
+    """
+    # Strip leading/trailing whitespace
+    content = content.strip()
+
+    # Limit length (defense in depth - API should also validate)
+    if len(content) > 2000:
+        content = content[:2000]
+
+    # Remove null bytes
+    content = content.replace('\x00', '')
+
+    return content
+
+
 async def store_user_message(
     conversation_id: int,
     user_id: str,
@@ -133,6 +152,9 @@ async def store_user_message(
     Returns:
         Created Message object
     """
+    # T161: Sanitize content before storage
+    content = sanitize_content(content)
+
     with Session(engine) as session:
         message = Message(
             conversation_id=conversation_id,
