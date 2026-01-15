@@ -23,7 +23,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Import routers and dependencies
-from .api import auth_router, task_router
+from .api import auth_router, task_router, chat_router
 from .dependencies.auth_dependencies import get_current_user
 
 # Initialize FastAPI app
@@ -70,6 +70,9 @@ app.add_middleware(
 app.include_router(auth_router.router, prefix="/api/auth", tags=["Authentication"])
 
 app.include_router(task_router.router, prefix="/api", tags=["Tasks"])
+
+# Phase III: Chat router
+app.include_router(chat_router.router, prefix="/api", tags=["Chat"])
 
 # --- Simple endpoints ---
 @app.get("/")

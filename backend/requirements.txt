@@ -13,3 +13,6 @@ pytest==7.4.3
 httpx==0.25.2
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
+
+# Phase III: AI Chatbot
+google-generativeai>=0.3.0

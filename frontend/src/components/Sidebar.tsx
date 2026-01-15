@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { LayoutDashboard, LogOut, CheckSquare, Settings } from 'lucide-react';
+import { LayoutDashboard, LogOut, CheckSquare, Settings, MessageSquare } from 'lucide-react';
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -11,6 +11,7 @@ export default function Sidebar() {
 
     const links = [
         { href: '/dashboard', label: 'My Tasks', icon: CheckSquare },
+        { href: '/dashboard/chat', label: 'AI Chat', icon: MessageSquare },
         // { href: '/dashboard/settings', label: 'Settings', icon: Settings },
     ];
 
