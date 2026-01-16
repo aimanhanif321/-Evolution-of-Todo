@@ -34,7 +34,7 @@ export default function TaskCard({ task, onUpdate, onEdit }: TaskCardProps) {
     if (!token || loading) return;
     setLoading(true);
     try {
-      await APIClient.patch(`/api/tasks/${task.id}/complete`, { completed: !task.completed }, token);
+      await APIClient.patch(`/tasks/${task.id}/complete`, { completed: !task.completed }, token);
       onUpdate();
     } catch (err: any) {
       console.error("Failed to toggle task", err);
@@ -54,7 +54,7 @@ export default function TaskCard({ task, onUpdate, onEdit }: TaskCardProps) {
     if (!token || loading) return;
     setLoading(true);
     try {
-      await APIClient.delete(`/api/tasks/${task.id}`, token);
+      await APIClient.delete(`/tasks/${task.id}`, token);
       onUpdate();
     } catch (err: any) {
       console.error("Failed to delete task", err);

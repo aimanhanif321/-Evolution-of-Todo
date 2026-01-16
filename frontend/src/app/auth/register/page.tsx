@@ -19,7 +19,7 @@ export default function RegisterPage() {
 
     try {
       // ✅ Register the user
-      await APIClient.post("/api/auth/register", {
+      await APIClient.post("/auth/register", {
         name,
         email,
         password,
@@ -27,7 +27,7 @@ export default function RegisterPage() {
 
       // ✅ Auto-login after registration
       const res = await APIClient.post<{ access_token: string }>(
-        "/api/auth/login",
+        "/auth/login",
         { email, password }
       );
 

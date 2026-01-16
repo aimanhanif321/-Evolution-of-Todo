@@ -1,277 +1,177 @@
 """
-Agent Service - Gemini AI Integration
+Agent Service - Cohere AI Integration (Chat API v2)
 
-Handles communication with the Gemini AI model for natural language
-task management. Implements tool calling for MCP operations.
+Uses Cohere's Chat API with NATIVE tool calling.
+No more prompt engineering for JSON - tools are called directly by the API.
 """
 
 import os
 import logging
 import asyncio
-from typing import Optional, List, Any
+import json
+from typing import List, Any, Optional
 from datetime import datetime
 
-import google.generativeai as genai
-from google.generativeai.types import FunctionDeclaration, Tool
-from google.api_core import exceptions as google_exceptions
+import cohere
+from cohere import ToolCallV2, ToolCallV2Function
 
 from ..mcp.tools import TOOLS, execute_tool
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
-# Retry configuration (T155)
 MAX_RETRIES = 3
-BASE_DELAY = 1.0  # seconds
+BASE_DELAY = 1.0
 
-
-# ============================================================================
+# ============================================================================#
 # Configuration
-# ============================================================================
+# ============================================================================#
 
-def configure_gemini() -> None:
-    """Configure Gemini API with API key from environment."""
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise RuntimeError("GEMINI_API_KEY environment variable is not set")
-    genai.configure(api_key=api_key)
+COHERE_API_KEY = os.getenv("COHERE_API_KEY")
+if not COHERE_API_KEY:
+    raise RuntimeError("COHERE_API_KEY environment variable is not set")
 
+# Use ClientV2 for the v2 API with native tool calling
+co_client = cohere.ClientV2(COHERE_API_KEY)
 
-# ============================================================================
-# System Prompt
-# ============================================================================
+# Model to use - command-r-plus is best for tool calling, command-r is faster
+COHERE_MODEL = "command-r-plus-08-2024"
 
-SYSTEM_PROMPT = """You are Taskora AI, a helpful task management assistant. You help users manage their todo list through natural conversation.
+# ============================================================================#
+# System Prompt (Preamble)
+# ============================================================================#
 
-CAPABILITIES:
-- Add new tasks (add_task)
-- List tasks with optional filtering (list_tasks)
-- Mark tasks as complete (complete_task)
-- Delete tasks (delete_task)
-- Update task details (update_task)
+SYSTEM_PROMPT = """You are Taskora AI, a helpful task management assistant.
+
+Your job is to help users manage their tasks using the available tools.
 
 RULES:
-1. Always be friendly and conversational
-2. Confirm every action you take
-3. If a user's request is ambiguous, ask for clarification
-4. When referencing tasks by number or position (like "the first one", "task 3"), first call list_tasks to get current task IDs
-5. Never make up task IDs - always verify they exist using list_tasks first
-6. Handle errors gracefully with helpful suggestions
-7. Keep responses concise but informative
+1. When a user wants to add, list, complete, delete, or update tasks - USE THE TOOLS.
+2. For "add task X" -> use add_task with title="X"
+3. For "list tasks" or "show tasks" -> use list_tasks
+4. For "complete task N" or "mark N as done" -> use complete_task with task_id=N
+5. For "delete task N" or "remove task N" -> use delete_task with task_id=N
+6. For "update task N to X" -> use update_task with task_id=N and new title
+7. After executing a tool, summarize what you did in a friendly way.
+8. For non-task questions, respond naturally and helpfully.
 
-RESPONSE FORMAT:
-- Use natural language, not technical jargon
-- Include relevant task details in responses
-- Offer helpful follow-up suggestions when appropriate
+Be concise, friendly, and always confirm when you've completed an action."""
 
-EXAMPLES:
-- "Add a task to buy groceries" -> Use add_task with title "buy groceries"
-- "Show my tasks" -> Use list_tasks with status "all"
-- "Mark the first task as done" -> First use list_tasks, then complete_task with the first task's ID
-- "Complete task 3" -> First use list_tasks to get IDs, then complete_task
-- "Done with the grocery task" -> First use list_tasks to find the task, then complete_task
-- "I finished buying groceries" -> First use list_tasks to find the matching task, then complete_task
-- "Check off the meeting task" -> First use list_tasks to find "meeting", then complete_task
-- "Delete task 3" -> First use list_tasks to get IDs, then delete_task
-- "What's pending?" -> Use list_tasks with status "pending"
+# ============================================================================#
+# Convert Tool Schemas to Cohere Format
+# ============================================================================#
 
-COMPLETION PHRASES TO RECOGNIZE:
-- "mark as done", "mark it done", "mark complete", "mark as complete"
-- "complete", "finish", "done with", "finished"
-- "check off", "tick off", "cross off"
-- When user says "it" or "that task", refer to the most recently mentioned task
-
-DELETION PHRASES TO RECOGNIZE:
-- "delete", "remove", "get rid of", "trash"
-- "clear", "cancel", "drop"
-- When deleting multiple tasks (e.g., "delete all completed tasks"), confirm with the user before proceeding
-- IMPORTANT: Never delete tasks without user confirmation if the request is ambiguous
-
-UPDATE/EDIT PHRASES TO RECOGNIZE:
-- "update", "edit", "change", "modify", "rename"
-- "set the title to", "change title to", "rename to"
-- "set description to", "add description", "change description"
-- When user wants to update a task, ask which field (title or description) if not clear
-- First use list_tasks to find the task, then update_task with the changes
-
-MULTI-TURN CONTEXT HANDLING:
-- Remember the task list from the most recent list_tasks call in this conversation
-- When user says "the first one", "the second one", etc., use the task order from the last list_tasks result
-- When user says "it", "that task", or "this one", refer to the most recently mentioned or acted-upon task
-- If user gives a number like "task 1" or "number 1", first call list_tasks to verify the correct task ID
-- Use conversation context to understand which task the user is referring to
-- If the reference is ambiguous, politely ask for clarification with the current task list
-
-Always be helpful and make task management feel effortless!"""
-
-
-# ============================================================================
-# Model Setup
-# ============================================================================
-
-def get_gemini_model() -> genai.GenerativeModel:
+def get_cohere_tools() -> List[cohere.ToolV2]:
     """
-    Create and return a configured Gemini model with tools.
-
-    Returns:
-        Configured GenerativeModel instance
+    Convert our tool schemas to Cohere's ToolV2 format.
     """
-    # Convert tool schemas to Gemini FunctionDeclaration format
-    function_declarations = []
-    for tool_schema in TOOLS:
-        func_decl = FunctionDeclaration(
-            name=tool_schema["name"],
-            description=tool_schema["description"],
-            parameters=tool_schema["parameters"]
+    cohere_tools = []
+    for tool in TOOLS:
+        cohere_tool = cohere.ToolV2(
+            type="function",
+            function=cohere.ToolV2Function(
+                name=tool["name"],
+                description=tool["description"],
+                parameters=tool["parameters"]
+            )
         )
-        function_declarations.append(func_decl)
-
-    # Create tools object
-    tools = Tool(function_declarations=function_declarations)
-
-    # Create model with tools and system instruction
-    model = genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        tools=[tools],
-        system_instruction=SYSTEM_PROMPT
-    )
-
-    return model
+        cohere_tools.append(cohere_tool)
+    return cohere_tools
 
 
-# ============================================================================
-# Message History Building
-# ============================================================================
+# ============================================================================#
+# Build Conversation History for Cohere
+# ============================================================================#
 
-def build_message_history(messages: List[dict]) -> List[dict]:
+def build_chat_history(messages: List[dict]) -> List[dict]:
     """
-    Convert stored messages to Gemini conversation format.
-
-    Args:
-        messages: List of message dicts with role, content, tool_calls
-
-    Returns:
-        List of messages in Gemini format
+    Convert message history to Cohere chat format.
     """
-    history = []
-
+    chat_history = []
     for msg in messages:
         role = msg.get("role", "user")
         content = msg.get("content", "")
-        tool_calls = msg.get("tool_calls")
 
-        # Map our roles to Gemini roles
-        gemini_role = "user" if role == "user" else "model"
+        if role == "user":
+            chat_history.append({"role": "user", "content": content})
+        elif role in ("assistant", "model"):
+            chat_history.append({"role": "assistant", "content": content})
 
-        # Include tool_calls context for assistant messages (T146)
-        # This helps the AI understand what actions were taken previously
-        parts = [content]
-        if tool_calls and gemini_role == "model":
-            tool_context = []
-            for tc in tool_calls:
-                tool_name = tc.get("tool", "unknown")
-                result = tc.get("result", {})
-                # Include relevant task info from tool results
-                if tool_name == "list_tasks" and "tasks" in result:
-                    tasks = result["tasks"]
-                    if tasks:
-                        task_list = ", ".join([f"#{t.get('task_id', '?')}: {t.get('title', 'Untitled')}" for t in tasks[:10]])
-                        tool_context.append(f"[Listed tasks: {task_list}]")
-                elif tool_name in ["add_task", "complete_task", "delete_task", "update_task"]:
-                    task_id = result.get("task_id")
-                    title = result.get("title")
-                    status = result.get("status")
-                    if task_id and title:
-                        tool_context.append(f"[{tool_name}: #{task_id} '{title}' - {status}]")
-            if tool_context:
-                parts.append("\n".join(tool_context))
-
-        history.append({
-            "role": gemini_role,
-            "parts": parts
-        })
-
-    return history
+    return chat_history
 
 
-# ============================================================================
-# Tool Call Processing
-# ============================================================================
+# ============================================================================#
+# Execute Tool Calls from Cohere Response
+# ============================================================================#
 
-async def process_tool_calls(
-    response: Any,
+async def execute_cohere_tool_calls(
+    tool_calls: List[ToolCallV2],
     user_id: str
-) -> tuple[List[dict], str]:
+) -> tuple[List[dict], List[dict]]:
     """
-    Process tool calls from Gemini response.
-
-    Args:
-        response: Gemini response object
-        user_id: User ID for tool execution
+    Execute tool calls returned by Cohere and format results.
 
     Returns:
-        Tuple of (tool_calls_results, final_text_response)
+        Tuple of (tool_result_messages, tool_calls_for_api_response)
     """
-    tool_calls_results = []
-    final_response = ""
+    tool_result_messages = []
+    tool_calls_response = []
 
-    # Check if response has candidates
-    if not response.candidates:
-        return tool_calls_results, "I'm having trouble processing that. Could you try again?"
+    for tc in tool_calls:
+        tool_name = tc.function.name
+        tool_call_id = tc.id
 
-    candidate = response.candidates[0]
+        # Parse arguments - Cohere returns them as a JSON string
+        try:
+            params = json.loads(tc.function.arguments) if tc.function.arguments else {}
+        except json.JSONDecodeError:
+            params = {}
 
-    # Process each part of the response
-    for part in candidate.content.parts:
-        # Check for text response
-        if hasattr(part, 'text') and part.text:
-            final_response = part.text
+        logger.info(f"Executing tool: {tool_name} with params: {params}")
 
-        # Check for function call
-        if hasattr(part, 'function_call') and part.function_call:
-            func_call = part.function_call
-            tool_name = func_call.name
-            params = dict(func_call.args) if func_call.args else {}
+        try:
+            # Execute the tool
+            result = await execute_tool(tool_name, user_id, params)
+            result_str = json.dumps(result)
 
-            logger.info(f"Executing tool: {tool_name} with params: {params}")
+            # Format for Cohere v2 - each tool result is a separate message
+            # with role="tool" and tool_call_id matching the call
+            tool_result_messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call_id,
+                "content": result_str
+            })
 
-            try:
-                # Execute the tool
-                result = await execute_tool(tool_name, user_id, params)
+            # Format for our API response
+            tool_calls_response.append({
+                "tool": tool_name,
+                "params": params,
+                "result": result,
+                "executed_at": datetime.utcnow().isoformat()
+            })
 
-                tool_calls_results.append({
-                    "tool": tool_name,
-                    "params": params,
-                    "result": result,
-                    "executed_at": datetime.utcnow().isoformat()
-                })
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Tool execution error: {error_msg}")
 
-                logger.info(f"Tool {tool_name} executed successfully: {result}")
+            tool_result_messages.append({
+                "role": "tool",
+                "tool_call_id": tool_call_id,
+                "content": json.dumps({"error": error_msg})
+            })
 
-            except ValueError as e:
-                logger.warning(f"Tool {tool_name} failed: {e}")
-                tool_calls_results.append({
-                    "tool": tool_name,
-                    "params": params,
-                    "result": {"error": str(e)},
-                    "executed_at": datetime.utcnow().isoformat()
-                })
+            tool_calls_response.append({
+                "tool": tool_name,
+                "params": params,
+                "result": {"error": error_msg},
+                "executed_at": datetime.utcnow().isoformat()
+            })
 
-            except Exception as e:
-                logger.error(f"Unexpected error in tool {tool_name}: {e}")
-                tool_calls_results.append({
-                    "tool": tool_name,
-                    "params": params,
-                    "result": {"error": "An unexpected error occurred"},
-                    "executed_at": datetime.utcnow().isoformat()
-                })
-
-    return tool_calls_results, final_response
+    return tool_result_messages, tool_calls_response
 
 
-# ============================================================================
-# Main Agent Function
-# ============================================================================
+# ============================================================================#
+# Main Agent Response Function
+# ============================================================================#
 
 async def generate_response(
     user_id: str,
@@ -279,99 +179,146 @@ async def generate_response(
     user_message: str
 ) -> tuple[str, List[dict]]:
     """
-    Generate AI response for user message.
-
-    Args:
-        user_id: User ID for tool execution
-        messages: Conversation history
-        user_message: Current user message
-
-    Returns:
-        Tuple of (response_text, tool_calls)
+    Generate AI response using Cohere Chat API with tool calling.
     """
     try:
-        # Ensure Gemini is configured
-        configure_gemini()
+        # Build chat history
+        chat_history = build_chat_history(messages)
 
-        # Get model
-        model = get_gemini_model()
+        # Add current user message
+        chat_history.append({"role": "user", "content": user_message})
 
-        # Build history from past messages
-        history = build_message_history(messages)
+        # Get tools in Cohere format
+        tools = get_cohere_tools()
 
-        # Start or continue chat
-        chat = model.start_chat(history=history)
+        logger.info(f"Sending to Cohere: {user_message[:50]}...")
 
-        # Send user message and get response
-        response = chat.send_message(user_message)
+        # Call Cohere Chat API v2
+        response = co_client.chat(
+            model=COHERE_MODEL,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                *chat_history
+            ],
+            tools=tools
+        )
 
-        # Process any tool calls
-        tool_calls, text_response = await process_tool_calls(response, user_id)
+        logger.info(f"Cohere response finish_reason: {response.finish_reason}")
 
-        # If we have tool calls but no text response, generate a follow-up
-        if tool_calls and not text_response:
-            # Get the tool results summary
-            tool_summaries = []
-            for tc in tool_calls:
-                result = tc.get("result", {})
-                if "error" in result:
-                    tool_summaries.append(f"Error: {result['error']}")
-                else:
-                    status = result.get("status", "done")
-                    title = result.get("title", "task")
-                    tool_summaries.append(f"{tc['tool']}: {status} - {title}")
+        all_tool_calls = []
 
-            # Generate natural response based on tool results
-            follow_up = chat.send_message(
-                f"The tools returned these results: {tool_summaries}. "
-                "Please provide a natural, friendly response to the user about what was done."
+        # Check if the model wants to call tools
+        if response.message and response.message.tool_calls:
+            logger.info(f"Tool calls requested: {len(response.message.tool_calls)}")
+
+            # Execute all tool calls
+            tool_result_messages, tool_calls_response = await execute_cohere_tool_calls(
+                response.message.tool_calls,
+                user_id
+            )
+            all_tool_calls.extend(tool_calls_response)
+
+            # Build the assistant message with tool_calls
+            # Cohere v2 requires tool_calls in the assistant message as a list of dicts
+            assistant_tool_calls = []
+            for tc in response.message.tool_calls:
+                assistant_tool_calls.append({
+                    "id": tc.id,
+                    "type": "function",
+                    "function": {
+                        "name": tc.function.name,
+                        "arguments": tc.function.arguments or "{}"
+                    }
+                })
+
+            # Build the full message history including tool calls and results
+            messages_with_tools = [
+                {"role": "system", "content": SYSTEM_PROMPT},
+                *chat_history,
+                {"role": "assistant", "tool_calls": assistant_tool_calls},
+                *tool_result_messages  # Each tool result is a separate message
+            ]
+
+            # Get final response after tool execution
+            final_response = co_client.chat(
+                model=COHERE_MODEL,
+                messages=messages_with_tools,
+                tools=tools
             )
 
-            if follow_up.candidates:
-                for part in follow_up.candidates[0].content.parts:
-                    if hasattr(part, 'text') and part.text:
-                        text_response = part.text
-                        break
+            # Extract text response
+            if final_response.message and final_response.message.content:
+                final_text = final_response.message.content[0].text
+            else:
+                # Generate a default response based on tool results
+                final_text = format_tool_results_message(tool_calls_response)
 
-        # Fallback response if still empty
-        if not text_response:
-            text_response = "I've completed your request!"
+            return final_text, all_tool_calls
 
-        return text_response, tool_calls
+        # No tool calls - just return the text response
+        if response.message and response.message.content:
+            text_response = response.message.content[0].text
+        else:
+            text_response = "I'm here to help with your tasks. What would you like to do?"
 
-    except google_exceptions.DeadlineExceeded as e:
-        # T153: Handle Gemini API timeout
-        logger.error(f"Gemini API timeout: {e}")
-        return (
-            "I'm taking too long to think. Please try a simpler request or try again.",
-            []
-        )
+        return text_response, []
 
-    except google_exceptions.ResourceExhausted as e:
-        # T154: Handle rate limit (429)
-        logger.warning(f"Gemini API rate limited: {e}")
-        return (
-            "I'm getting too many requests right now. Please wait a moment and try again.",
-            []
-        )
+    except cohere.errors.UnauthorizedError:
+        logger.error("Cohere API: Invalid API key")
+        raise RuntimeError("Invalid Cohere API key. Please check your COHERE_API_KEY.")
 
-    except google_exceptions.ServiceUnavailable as e:
-        # T155: Transient error - could retry
-        logger.warning(f"Gemini API unavailable: {e}")
-        return (
-            "The AI service is temporarily unavailable. Please try again in a moment.",
-            []
-        )
+    except cohere.errors.TooManyRequestsError:
+        logger.error("Cohere API: Rate limit exceeded")
+        raise RuntimeError("Rate limit exceeded. Please try again later.")
 
     except Exception as e:
-        logger.error(f"Error generating response: {e}")
-        # Return user-friendly error message
-        return (
-            "I'm having trouble processing your request right now. "
-            "Please try again in a moment.",
-            []
-        )
+        import traceback
+        error_msg = f"{type(e).__name__}: {e}"
+        logger.error(f"Error generating response: {error_msg}")
+        logger.error(f"Traceback:\n{traceback.format_exc()}")
+        raise
 
+
+def format_tool_results_message(tool_calls: List[dict]) -> str:
+    """Format a friendly message from tool execution results."""
+    if not tool_calls:
+        return "Done!"
+
+    messages = []
+    for tc in tool_calls:
+        tool = tc["tool"]
+        result = tc.get("result", {})
+
+        if tool == "add_task":
+            title = result.get("title", "your task")
+            messages.append(f"Added task: \"{title}\"")
+        elif tool == "list_tasks":
+            count = result.get("count", 0)
+            if count == 0:
+                messages.append("You have no tasks.")
+            else:
+                tasks = result.get("tasks", [])
+                task_list = []
+                for t in tasks:
+                    status = "✓" if t.get("completed") else "○"
+                    task_list.append(f"{status} [{t['task_id']}] {t['title']}")
+                messages.append(f"Your tasks ({count}):\n" + "\n".join(task_list))
+        elif tool == "complete_task":
+            title = result.get("title", f"Task {tc['params'].get('task_id')}")
+            messages.append(f"Completed: \"{title}\"")
+        elif tool == "delete_task":
+            title = result.get("title", f"Task {tc['params'].get('task_id')}")
+            messages.append(f"Deleted: \"{title}\"")
+        elif tool == "update_task":
+            title = result.get("title", f"Task {tc['params'].get('task_id')}")
+            messages.append(f"Updated task to: \"{title}\"")
+
+    return " | ".join(messages) if len(messages) > 1 else messages[0] if messages else "Done!"
+
+
+# ============================================================================#
+# Retry Logic
+# ============================================================================#
 
 async def generate_response_with_retry(
     user_id: str,
@@ -380,35 +327,26 @@ async def generate_response_with_retry(
     max_retries: int = MAX_RETRIES
 ) -> tuple[str, List[dict]]:
     """
-    Generate AI response with retry logic for transient errors (T155).
-
-    Uses exponential backoff for retries on rate limits and service unavailability.
+    Generate response with exponential backoff retry.
     """
     last_error = None
 
     for attempt in range(max_retries):
         try:
             return await generate_response(user_id, messages, user_message)
-        except google_exceptions.ResourceExhausted as e:
-            # Rate limited - wait and retry
-            last_error = e
-            delay = BASE_DELAY * (2 ** attempt)
-            logger.warning(f"Rate limited, retrying in {delay}s (attempt {attempt + 1}/{max_retries})")
-            await asyncio.sleep(delay)
-        except google_exceptions.ServiceUnavailable as e:
-            # Service unavailable - wait and retry
-            last_error = e
-            delay = BASE_DELAY * (2 ** attempt)
-            logger.warning(f"Service unavailable, retrying in {delay}s (attempt {attempt + 1}/{max_retries})")
-            await asyncio.sleep(delay)
-        except Exception as e:
-            # Non-retryable error
-            logger.error(f"Non-retryable error: {e}")
+        except RuntimeError as e:
+            # Don't retry auth errors
+            error_msg = str(e)
+            if "Invalid Cohere API key" in error_msg:
+                return f"Configuration error: {error_msg}", []
             raise
+        except Exception as e:
+            last_error = e
+            logger.warning(f"Attempt {attempt + 1}/{max_retries} failed: {e}")
 
-    # All retries exhausted
+            if attempt < max_retries - 1:
+                delay = BASE_DELAY * (2 ** attempt)
+                await asyncio.sleep(delay)
+
     logger.error(f"All {max_retries} retries failed: {last_error}")
-    return (
-        "I'm experiencing issues right now. Please try again later.",
-        []
-    )
+    return "I'm having trouble processing your request right now. Please try again.", []

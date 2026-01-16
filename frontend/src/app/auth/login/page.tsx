@@ -19,10 +19,10 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await APIClient.post<{ access_token: string }>("/api/auth/login", {
-        email,
-        password,
-      });
+      const res = await APIClient.post<{ access_token: string }>("/auth/login", {
+  email,
+  password,
+});
       const token = res.access_token;
 
       // Decode token for user info (if available)

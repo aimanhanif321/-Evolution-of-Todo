@@ -74,7 +74,7 @@ export interface ChatApiResponse<T> {
 
 function getAuthToken(): string | null {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('access_token');
+    return localStorage.getItem('token');
   }
   return null;
 }
@@ -95,7 +95,7 @@ async function handleResponse<T>(response: Response): Promise<ChatApiResponse<T>
       // Handle unauthorized
       if (response.status === 401 || response.status === 403) {
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('access_token');
+          localStorage.removeItem('token');
         }
       }
 
