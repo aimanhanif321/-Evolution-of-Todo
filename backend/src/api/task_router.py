@@ -75,7 +75,7 @@ async def update_task_endpoint(
 # -------------------------------
 # 5️⃣ Delete a task
 # -------------------------------
-@router.delete("/tasks/{task_id}")
+@router.delete("/api/tasks/{task_id}")
 async def delete_task_endpoint(
     task_id: int,
     current_user_id: str = Depends(get_current_user),
@@ -89,7 +89,7 @@ async def delete_task_endpoint(
 # -------------------------------
 # 6️⃣ Toggle completion status
 # -------------------------------
-@router.patch("/tasks/{task_id}/complete", response_model=TaskRead)
+@router.patch("/api/tasks/{task_id}/complete", response_model=TaskRead)
 async def toggle_task_completion_endpoint(
     task_id: int,
     task_data: TaskUpdate,  # should include task_data.completed
