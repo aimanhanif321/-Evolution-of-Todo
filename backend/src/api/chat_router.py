@@ -1,11 +1,11 @@
 """
 Chat API Router - Phase III AI Chatbot
 
-Endpoints:
-- POST /api/{user_id}/chat - Send chat message
-- GET /api/{user_id}/conversations - List conversations
-- GET /api/{user_id}/conversations/{conversation_id}/messages - Get messages
-- DELETE /api/{user_id}/conversations/{conversation_id} - Delete conversation
+Endpoints (mounted at /api prefix in main.py):
+- POST /{user_id}/chat - Send chat message
+- GET /{user_id}/conversations - List conversations
+- GET /{user_id}/conversations/{conversation_id}/messages - Get messages
+- DELETE /{user_id}/conversations/{conversation_id} - Delete conversation
 """
 
 from fastapi import APIRouter, HTTPException, Depends, Query
@@ -36,7 +36,7 @@ router = APIRouter()
 
 
 # ============================================================================
-# POST /api/{user_id}/chat - Send chat message (T072-T078)
+# POST /{user_id}/chat - Send chat message (T072-T078)
 # ============================================================================
 
 @router.post(
@@ -155,7 +155,7 @@ async def send_chat_message(
 
 
 # ============================================================================
-# GET /api/{user_id}/conversations - List conversations (T079-T080)
+# GET /{user_id}/conversations - List conversations (T079-T080)
 # ============================================================================
 
 @router.get(
@@ -213,7 +213,7 @@ async def list_conversations(
 
 
 # ============================================================================
-# GET /api/{user_id}/conversations/{conversation_id}/messages (T081)
+# GET /{user_id}/conversations/{conversation_id}/messages (T081)
 # ============================================================================
 
 @router.get(
@@ -299,7 +299,7 @@ async def get_conversation_messages(
 
 
 # ============================================================================
-# DELETE /api/{user_id}/conversations/{conversation_id} (T128-T130)
+# DELETE /{user_id}/conversations/{conversation_id} (T128-T130)
 # ============================================================================
 
 @router.delete(
