@@ -14,7 +14,7 @@ router = APIRouter()
 # -------------------------------
 # 1️⃣ Simple route to get all tasks for logged-in user
 # -------------------------------
-@router.get("/api/tasks", response_model=List[TaskRead])
+@router.get("/tasks", response_model=List[TaskRead])
 async def get_my_tasks(
     current_user_id: str = Depends(get_current_user),
     session: Session = Depends(get_session)
@@ -34,7 +34,7 @@ async def get_my_tasks(
 # ):
 #     db_task = create_task(session, task_data, current_user_id)
 #     return db_task
-@router.post("/api/tasks", response_model=TaskRead, status_code=201)
+@router.post("/tasks", response_model=TaskRead, status_code=201)
 async def create_task_endpoint(
     task_data: TaskCreate,
     current_user_id: str = Depends(get_current_user),
@@ -46,7 +46,7 @@ async def create_task_endpoint(
 # -------------------------------
 # 3️⃣ Get a single task by ID
 # -------------------------------
-@router.get("/api/tasks/{task_id}", response_model=TaskRead)
+@router.get("/tasks/{task_id}", response_model=TaskRead)
 async def get_task_endpoint(
     task_id: int,
     current_user_id: str = Depends(get_current_user),
@@ -60,7 +60,7 @@ async def get_task_endpoint(
 # -------------------------------
 # 4️⃣ Update a task
 # -------------------------------
-@router.put("/api/tasks/{task_id}", response_model=TaskRead)
+@router.put("/tasks/{task_id}", response_model=TaskRead)
 async def update_task_endpoint(
     task_id: int,
     task_data: TaskUpdate,
@@ -75,7 +75,7 @@ async def update_task_endpoint(
 # -------------------------------
 # 5️⃣ Delete a task
 # -------------------------------
-@router.delete("/api/tasks/{task_id}")
+@router.delete("/tasks/{task_id}")
 async def delete_task_endpoint(
     task_id: int,
     current_user_id: str = Depends(get_current_user),
@@ -89,7 +89,7 @@ async def delete_task_endpoint(
 # -------------------------------
 # 6️⃣ Toggle completion status
 # -------------------------------
-@router.patch("/api/tasks/{task_id}/complete", response_model=TaskRead)
+@router.patch("/tasks/{task_id}/complete", response_model=TaskRead)
 async def toggle_task_completion_endpoint(
     task_id: int,
     task_data: TaskUpdate,  # should include task_data.completed
