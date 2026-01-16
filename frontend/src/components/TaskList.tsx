@@ -27,7 +27,7 @@ export default function TaskList() {
     if (!token) return; // user must be logged in
     try {
         // GET /api/tasks
-        const tasksFromApi = await APIClient.get<Task[]>(`/tasks`, token);
+        const tasksFromApi = await APIClient.get<Task[]>(`/api/tasks`, token);
         setTasks(tasksFromApi || []);
     } catch (error: any) {
         console.error("Failed to fetch tasks", error.message);

@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await APIClient.post<{ access_token: string }>("/auth/login", {
+      const res = await APIClient.post<{ access_token: string }>("/api/auth/login", {
   email,
   password,
 });
