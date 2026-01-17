@@ -102,3 +102,5 @@ async def toggle_task_completion_endpoint(
     if not updated_task:
         raise HTTPException(status_code=404, detail="Task not found")
     return updated_task
+
+

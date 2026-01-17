@@ -34,7 +34,7 @@ export default function TaskCard({ task, onUpdate, onEdit }: TaskCardProps) {
     if (!token || loading) return;
     setLoading(true);
     try {
-      await APIClient.patch(`/tasks/${task.id}/complete`, { completed: !task.completed }, token);
+      await APIClient.patch(`/api/tasks/${task.id}/complete`, { completed: !task.completed }, token);
       onUpdate();
     } catch (err: any) {
       console.error("Failed to toggle task", err);

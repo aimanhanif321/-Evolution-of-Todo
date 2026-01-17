@@ -171,7 +171,7 @@ export default function TaskForm({
 };
 
       if (editTask) {
-        await APIClient.put(`/tasks/${editTask.id}`, payload, token);
+        await APIClient.put(`/api/tasks/${editTask.id}`, payload, token);
       } else {
         await APIClient.post(`/api/tasks`, payload, token);
       }

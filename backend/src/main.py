@@ -71,6 +71,7 @@ app.include_router(auth_router.router, prefix="/api/auth", tags=["Authentication
 
 app.include_router(task_router.router, prefix="/api", tags=["Tasks"])
 
+
 # Phase III: Chat router
 app.include_router(chat_router.router, prefix="/api", tags=["Chat"])
 
