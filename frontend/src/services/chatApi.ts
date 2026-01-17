@@ -140,7 +140,7 @@ export async function sendMessage(
   conversationId?: number
 ): Promise<ChatApiResponse<ChatResponse>> {
   try {
-    const response = await fetch(`${API_BASE_URL}/${userId}/chat`, {
+    const response = await fetch(`${API_BASE_URL}/api/${userId}/chat`, {
       method: 'POST',
       headers: getAuthHeaders(),
       body: JSON.stringify({
@@ -180,7 +180,7 @@ export async function getConversations(
     });
 
     const response = await fetch(
-      `${API_BASE_URL}/${userId}/conversations?${params}`,
+      `${API_BASE_URL}/api/${userId}/conversations?${params}`,
       {
         method: 'GET',
         headers: getAuthHeaders(),
@@ -217,7 +217,7 @@ export async function getMessages(
     });
 
     const response = await fetch(
-      `${API_BASE_URL}/${userId}/conversations/${conversationId}/messages?${params}`,
+      `${API_BASE_URL}/api/${userId}/conversations/${conversationId}/messages?${params}`,
       {
         method: 'GET',
         headers: getAuthHeaders(),
@@ -248,7 +248,7 @@ export async function deleteConversation(
 ): Promise<ChatApiResponse<DeleteConversationResponse>> {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/${userId}/conversations/${conversationId}`,
+      `${API_BASE_URL}/api/${userId}/conversations/${conversationId}`,
       {
         method: 'DELETE',
         headers: getAuthHeaders(),
