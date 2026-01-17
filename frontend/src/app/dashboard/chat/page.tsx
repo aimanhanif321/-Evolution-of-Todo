@@ -35,7 +35,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="h-[calc(100vh-4rem)] -m-8 bg-slate-950">
+    <div className="h-[calc(100vh-5rem)] lg:h-[calc(100vh-4rem)] -m-4 -mt-20 lg:-m-8 lg:-mt-8 bg-slate-950">
       <ChatContainer />
     </div>
   );

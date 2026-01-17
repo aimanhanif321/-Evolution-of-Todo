@@ -66,16 +66,16 @@ export default function TaskList() {
 
     return (
         <div>
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">My Tasks</h1>
-                    <p className="text-slate-500 mt-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">My Tasks</h1>
+                    <p className="text-slate-500 mt-1 text-sm sm:text-base">
                         You have {tasks.filter(t => !t.completed).length} incomplete tasks.
                     </p>
                 </div>
                 <button
                     onClick={() => { setEditingTask(null); setIsFormOpen(true); }}
-                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 font-medium transition-all hover:scale-[1.02]"
+                    className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-indigo-500/20 font-medium transition-all hover:scale-[1.02] w-full sm:w-auto"
                 >
                     <Plus className="w-5 h-5" />
                     Add Task

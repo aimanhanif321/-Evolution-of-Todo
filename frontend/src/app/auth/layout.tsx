@@ -5,7 +5,7 @@ export default function AuthLayout({
 }) {
     return (
         <div className="flex min-h-screen w-full">
-            {/* Left Side - Branding/Hero */}
+            {/* Left Side - Branding/Hero (hidden on mobile) */}
             <div className="hidden lg:flex w-1/2 bg-slate-900 justify-center items-center p-12 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 z-0" />
                 <div className="relative z-10 text-white max-w-lg">
@@ -20,7 +20,13 @@ export default function AuthLayout({
             </div>
 
             {/* Right Side - Form */}
-            <div className="flex-1 flex justify-center items-center bg-white p-8">
+            <div className="flex-1 flex flex-col justify-center items-center bg-white p-4 sm:p-8">
+                {/* Mobile Logo */}
+                <div className="lg:hidden mb-8 text-center">
+                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Taskora</h1>
+                    <p className="text-slate-500 mt-2 text-sm">Manage your tasks efficiently</p>
+                </div>
+
                 <div className="w-full max-w-md space-y-8">
                     {children}
                 </div>

@@ -18,14 +18,14 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      // ✅ Register the user
+      // Register the user
       await APIClient.post("/api/auth/register", {
         name,
         email,
         password,
       });
 
-      // ✅ Auto-login after registration
+      // Auto-login after registration
       const res = await APIClient.post<{ access_token: string }>(
         "/api/auth/login",
         { email, password }
@@ -52,21 +52,21 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto mt-16">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-slate-900">Create an account</h2>
-        <p className="text-slate-500 mt-2">
-          Start organizing your life with Taskora.
-        </p>
-      </div>
+    <div className="w-full">
+      <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Create an account</h2>
+      <p className="text-slate-500 mt-2 text-sm sm:text-base">
+        Start organizing your life with Taskora
+      </p>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 mt-6">
         {error && (
-          <div className="p-4 rounded-md bg-red-50 text-red-500 text-sm">{error}</div>
+          <div className="p-3 sm:p-4 rounded-lg bg-red-50 text-red-500 text-sm">
+            {error}
+          </div>
         )}
 
-        <div className="space-y-2">
-          <label htmlFor="name" className="block text-sm font-medium text-slate-700">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">
             Full Name
           </label>
           <input
@@ -74,14 +74,14 @@ export default function RegisterPage() {
             type="text"
             required
             placeholder="John Doe"
-            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-base"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="email" className="block text-sm font-medium text-slate-700">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1">
             Email
           </label>
           <input
@@ -89,14 +89,14 @@ export default function RegisterPage() {
             type="email"
             required
             placeholder="john@example.com"
-            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-base"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="password" className="block text-sm font-medium text-slate-700">
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1">
             Password
           </label>
           <input
@@ -104,7 +104,7 @@ export default function RegisterPage() {
             type="password"
             required
             placeholder="••••••••"
-            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all"
+            className="w-full px-4 py-3 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-base"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -113,21 +113,21 @@ export default function RegisterPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-medium rounded-lg shadow-md transition-all text-base"
         >
           {loading ? "Creating account..." : "Create account"}
         </button>
       </form>
 
-      <div className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-slate-500">
         Already have an account?{" "}
         <Link
           href="/auth/login"
-          className="text-indigo-600 font-semibold hover:text-indigo-500"
+          className="text-indigo-600 font-medium hover:text-indigo-500"
         >
           Sign in
         </Link>
-      </div>
+      </p>
     </div>
   );
 }
