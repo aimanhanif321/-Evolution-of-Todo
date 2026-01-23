@@ -16,7 +16,14 @@
       "Bash(git add specs/002-fullstack-todo-app/)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfeat: Add Taskora full-stack todo web application specification\n\n- Create comprehensive specification for the Taskora Phase II application\n- Define user stories for authentication, task management, and security\n- Specify functional requirements for multi-user isolation and API behavior\n- Establish success criteria for user experience and system performance\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(.specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
-      "WebFetch(domain:subhankaladi123-todo-app.hf.space)"
+      "WebFetch(domain:subhankaladi123-todo-app.hf.space)",
+      "Bash(minikube delete:*)",
+      "Bash(kubectl config get-contexts:*)",
+      "Bash(kubectl config use-context:*)",
+      "Bash(kubectl get:*)",
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker logs:*)"
     ]
   }
 }

@@ -1,0 +1,59 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+=== Getting Started ===
+
+1. Get the application URL:
+{{- if .Values.ingress.enabled }}
+   Application URL: http{{ if .Values.ingress.tls.enabled }}s{{ end }}://{{ .Values.ingress.host }}
+{{- else }}
+   kubectl port-forward svc/{{ include "taskora.fullname" . }}-frontend 3000:3000 -n {{ .Release.Namespace }}
+   Then visit: http://localhost:3000
+{{- end }}
+
+2. Check the status of your pods:
+   kubectl get pods -n {{ .Release.Namespace }}
+
+3. View logs:
+   # Frontend logs
+   kubectl logs -l app.kubernetes.io/component=frontend -n {{ .Release.Namespace }}
+
+   # Backend logs
+   kubectl logs -l app.kubernetes.io/component=backend -n {{ .Release.Namespace }}
+
+   # Database logs
+   kubectl logs -l app.kubernetes.io/component=database -n {{ .Release.Namespace }}
+
+=== Configuration ===
+
+Environment: {{ .Values.global.environment }}
+Frontend Replicas: {{ .Values.frontend.replicaCount }}
+Backend Replicas: {{ .Values.backend.replicaCount }}
+
+=== Useful Commands ===
+
+# Scale the backend
+kubectl scale deployment {{ include "taskora.fullname" . }}-backend --replicas=5 -n {{ .Release.Namespace }}
+
+# Restart a deployment
+kubectl rollout restart deployment {{ include "taskora.fullname" . }}-frontend -n {{ .Release.Namespace }}
+
+# View all resources
+kubectl get all -n {{ .Release.Namespace }}
+
+{{- if .Values.kagent.enabled }}
+
+=== Kagent (AI Agent) ===
+
+Kagent is enabled with autonomy level: {{ .Values.kagent.autonomyLevel }}
+
+Capabilities:
+- Health Monitoring: {{ .Values.kagent.capabilities.healthMonitoring }}
+- Auto Restart: {{ .Values.kagent.capabilities.autoRestart }}
+- Resource Monitoring: {{ .Values.kagent.capabilities.resourceMonitoring }}
+- Log Analysis: {{ .Values.kagent.capabilities.logAnalysis }}
+{{- end }}
+
+For more information, visit: {{ .Chart.Home }}

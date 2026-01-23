@@ -1,0 +1,19 @@
+{{- if and .Values.database.enabled (not .Values.database.persistence.enabled) }}
+# Note: When persistence is enabled, PVC is created via volumeClaimTemplates in StatefulSet
+# This standalone PVC is only used when persistence is disabled but you want to test with a PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "taskora.fullname" . }}-database-data
+  labels:
+    {{- include "taskora.database.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - {{ .Values.database.persistence.accessMode | default "ReadWriteOnce" }}
+  {{- if .Values.database.persistence.storageClass }}
+  storageClassName: {{ .Values.database.persistence.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.database.persistence.size | default "10Gi" }}
+{{- end }}

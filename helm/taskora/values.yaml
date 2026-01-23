@@ -1,0 +1,153 @@
+# Default values for taskora.
+# This is a YAML-formatted file.
+
+# Global settings
+global:
+  namespace: taskora
+  imagePullPolicy: IfNotPresent
+  environment: production
+
+# Name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+# Service Account
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+# Frontend configuration (Next.js)
+frontend:
+  enabled: true
+  replicaCount: 2
+
+  image:
+    repository: taskora/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  healthCheck:
+    path: /api/health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  env: {}
+
+# Backend configuration (FastAPI)
+backend:
+  enabled: true
+  replicaCount: 3
+
+  image:
+    repository: taskora/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+  healthCheck:
+    path: /health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  env: {}
+
+# Database configuration (PostgreSQL)
+database:
+  enabled: true
+
+  image:
+    repository: postgres
+    tag: 15-alpine
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 5432
+
+  auth:
+    database: taskora
+    username: taskora
+    existingSecret: taskora-db-credentials
+
+  persistence:
+    enabled: true
+    storageClass: standard
+    size: 10Gi
+    accessMode: ReadWriteOnce
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: nginx
+  host: taskora.local
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+  tls:
+    enabled: false
+    secretName: ""
+
+# ConfigMap settings
+config:
+  apiBaseUrl: "http://taskora-backend:8000"
+  appEnv: "production"
+  logLevel: "info"
+  enableMetrics: "true"
+  maxConversationHistory: "20"
+  chatRateLimit: "30"
+
+# Secrets configuration
+secrets:
+  create: false
+  existingSecret: taskora-secrets
+  # If create is true, these values will be used:
+  # databaseUrl: ""
+  # cohereApiKey: ""
+  # betterAuthSecret: ""
+  # geminiApiKey: ""
+
+# Kagent configuration (optional)
+kagent:
+  enabled: false
+  autonomyLevel: supervised
+  capabilities:
+    healthMonitoring: true
+    autoRestart: true
+    resourceMonitoring: true
+    logAnalysis: true

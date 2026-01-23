@@ -1,0 +1,47 @@
+# Production environment overrides
+global:
+  environment: production
+
+# Production replicas
+frontend:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+backend:
+  replicaCount: 5
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+
+database:
+  persistence:
+    size: 50Gi
+    storageClass: fast-ssd
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 2000m
+      memory: 4Gi
+
+# Production config
+config:
+  appEnv: "production"
+  logLevel: "warn"
+
+# Enable TLS in production
+ingress:
+  tls:
+    enabled: true
+    secretName: taskora-tls

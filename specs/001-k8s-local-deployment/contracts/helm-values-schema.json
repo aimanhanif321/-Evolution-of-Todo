@@ -1,0 +1,477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://taskora.local/schemas/helm-values.json",
+  "title": "Taskora Helm Values Schema",
+  "description": "JSON Schema for validating Taskora Helm chart values.yaml",
+  "type": "object",
+  "properties": {
+    "global": {
+      "type": "object",
+      "description": "Global configuration applied to all components",
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "default": "taskora",
+          "description": "Kubernetes namespace for deployment"
+        },
+        "imagePullPolicy": {
+          "type": "string",
+          "enum": ["Always", "IfNotPresent", "Never"],
+          "default": "IfNotPresent",
+          "description": "Default image pull policy"
+        },
+        "environment": {
+          "type": "string",
+          "enum": ["development", "staging", "production"],
+          "default": "production",
+          "description": "Deployment environment"
+        }
+      }
+    },
+    "frontend": {
+      "type": "object",
+      "description": "Frontend (Next.js) configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable frontend deployment"
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 2,
+          "description": "Number of frontend replicas"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "default": "taskora/frontend",
+              "description": "Docker image repository"
+            },
+            "tag": {
+              "type": "string",
+              "default": "latest",
+              "description": "Docker image tag"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "default": "IfNotPresent"
+            }
+          },
+          "required": ["repository", "tag"]
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+              "default": "ClusterIP"
+            },
+            "port": {
+              "type": "integer",
+              "default": 3000,
+              "description": "Service port"
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "default": "100m",
+                  "pattern": "^[0-9]+(m|[0-9]*)$"
+                },
+                "memory": {
+                  "type": "string",
+                  "default": "128Mi",
+                  "pattern": "^[0-9]+(Mi|Gi)$"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "default": "500m",
+                  "pattern": "^[0-9]+(m|[0-9]*)$"
+                },
+                "memory": {
+                  "type": "string",
+                  "default": "512Mi",
+                  "pattern": "^[0-9]+(Mi|Gi)$"
+                }
+              }
+            }
+          }
+        },
+        "healthCheck": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "default": "/api/health"
+            },
+            "initialDelaySeconds": {
+              "type": "integer",
+              "default": 30
+            },
+            "periodSeconds": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        }
+      },
+      "required": ["enabled", "replicaCount", "image"]
+    },
+    "backend": {
+      "type": "object",
+      "description": "Backend (FastAPI) configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable backend deployment"
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3,
+          "description": "Number of backend replicas"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "default": "taskora/backend"
+            },
+            "tag": {
+              "type": "string",
+              "default": "latest"
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": ["Always", "IfNotPresent", "Never"],
+              "default": "IfNotPresent"
+            }
+          },
+          "required": ["repository", "tag"]
+        },
+        "service": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["ClusterIP", "NodePort", "LoadBalancer"],
+              "default": "ClusterIP"
+            },
+            "port": {
+              "type": "integer",
+              "default": 8000
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "default": "200m"
+                },
+                "memory": {
+                  "type": "string",
+                  "default": "256Mi"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "default": "1000m"
+                },
+                "memory": {
+                  "type": "string",
+                  "default": "1Gi"
+                }
+              }
+            }
+          }
+        },
+        "healthCheck": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "default": "/health"
+            },
+            "initialDelaySeconds": {
+              "type": "integer",
+              "default": 30
+            },
+            "periodSeconds": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        }
+      },
+      "required": ["enabled", "replicaCount", "image"]
+    },
+    "database": {
+      "type": "object",
+      "description": "PostgreSQL database configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable in-cluster PostgreSQL"
+        },
+        "image": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "default": "postgres"
+            },
+            "tag": {
+              "type": "string",
+              "default": "15-alpine"
+            }
+          }
+        },
+        "auth": {
+          "type": "object",
+          "properties": {
+            "database": {
+              "type": "string",
+              "default": "taskora"
+            },
+            "username": {
+              "type": "string",
+              "default": "taskora"
+            },
+            "existingSecret": {
+              "type": "string",
+              "description": "Name of existing secret with credentials"
+            }
+          }
+        },
+        "persistence": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "storageClass": {
+              "type": "string",
+              "default": "standard"
+            },
+            "size": {
+              "type": "string",
+              "default": "10Gi",
+              "pattern": "^[0-9]+(Mi|Gi|Ti)$"
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "requests": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "default": "100m"
+                },
+                "memory": {
+                  "type": "string",
+                  "default": "256Mi"
+                }
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "cpu": {
+                  "type": "string",
+                  "default": "500m"
+                },
+                "memory": {
+                  "type": "string",
+                  "default": "512Mi"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ingress": {
+      "type": "object",
+      "description": "Ingress configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "className": {
+          "type": "string",
+          "default": "nginx"
+        },
+        "host": {
+          "type": "string",
+          "default": "taskora.local",
+          "description": "Ingress hostname"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "tls": {
+          "type": "object",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": false
+            },
+            "secretName": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "description": "Application configuration (ConfigMap)",
+      "properties": {
+        "apiBaseUrl": {
+          "type": "string",
+          "default": "http://taskora-backend:8000"
+        },
+        "logLevel": {
+          "type": "string",
+          "enum": ["debug", "info", "warning", "error"],
+          "default": "info"
+        },
+        "enableMetrics": {
+          "type": "boolean",
+          "default": true
+        },
+        "maxConversationHistory": {
+          "type": "integer",
+          "default": 20
+        },
+        "chatRateLimit": {
+          "type": "integer",
+          "default": 30
+        }
+      }
+    },
+    "secrets": {
+      "type": "object",
+      "description": "Secret configuration",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "default": true,
+          "description": "Create secrets from values"
+        },
+        "existingSecret": {
+          "type": "string",
+          "description": "Use existing secret instead"
+        },
+        "cohereApiKey": {
+          "type": "string",
+          "description": "Cohere API key (if create=true)"
+        },
+        "betterAuthSecret": {
+          "type": "string",
+          "description": "JWT secret (if create=true)"
+        },
+        "geminiApiKey": {
+          "type": "string",
+          "description": "Gemini API key (if create=true)"
+        }
+      }
+    },
+    "serviceAccount": {
+      "type": "object",
+      "properties": {
+        "create": {
+          "type": "boolean",
+          "default": true
+        },
+        "name": {
+          "type": "string",
+          "default": "taskora"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "kagent": {
+      "type": "object",
+      "description": "Kagent autonomous operator configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Kagent deployment"
+        },
+        "autonomyLevel": {
+          "type": "string",
+          "enum": ["supervised", "autonomous"],
+          "default": "supervised"
+        },
+        "capabilities": {
+          "type": "object",
+          "properties": {
+            "healthMonitoring": {
+              "type": "boolean",
+              "default": true
+            },
+            "autoRestart": {
+              "type": "boolean",
+              "default": true
+            },
+            "resourceMonitoring": {
+              "type": "boolean",
+              "default": true
+            },
+            "logAnalysis": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["frontend", "backend", "database"]
+}

@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: taskora-database
+    environment:
+      POSTGRES_USER: taskora
+      POSTGRES_PASSWORD: taskora-dev-password
+      POSTGRES_DB: taskora
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskora"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: taskora/backend:latest
+    container_name: taskora-backend
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://taskora:taskora-dev-password@database:5432/taskora
+    ports:
+      - "8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    image: taskora/frontend:latest
+    container_name: taskora-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

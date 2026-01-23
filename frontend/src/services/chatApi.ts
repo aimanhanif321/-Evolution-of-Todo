@@ -4,7 +4,7 @@
  * Phase III: AI-powered chat interface for task management
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://subhankaladi123-todo-app.hf.space/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 // ============================================================================
 // Types

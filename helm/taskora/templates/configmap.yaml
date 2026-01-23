@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "taskora.fullname" . }}-config
+  labels:
+    {{- include "taskora.labels" . | nindent 4 }}
+data:
+  API_BASE_URL: {{ .Values.config.apiBaseUrl | quote }}
+  APP_ENV: {{ .Values.config.appEnv | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  ENABLE_METRICS: {{ .Values.config.enableMetrics | quote }}
+  MAX_CONVERSATION_HISTORY: {{ .Values.config.maxConversationHistory | quote }}
+  CHAT_RATE_LIMIT: {{ .Values.config.chatRateLimit | quote }}

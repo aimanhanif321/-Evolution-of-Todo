@@ -63,8 +63,8 @@
 
 // src/lib/apiClient.ts
 
-export const BASE_URL = "https://subhankaladi123-todo-app.hf.space/api";
-const API_URL = process.env.NEXT_PUBLIC_API_URL || BASE_URL;
+export const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = BASE_URL;
 
 type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 

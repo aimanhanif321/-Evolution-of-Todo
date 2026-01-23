@@ -1,0 +1,24 @@
+apiVersion: v2
+name: taskora
+description: Cloud-Native AI Todo Platform - Taskora Helm Chart
+type: application
+version: 1.0.0
+appVersion: "4.0.0"
+
+keywords:
+  - todo
+  - ai
+  - kubernetes
+  - cloud-native
+  - fastapi
+  - nextjs
+
+maintainers:
+  - name: Taskora Team
+
+home: https://github.com/taskora/evolution-of-todos
+
+sources:
+  - https://github.com/taskora/evolution-of-todos
+
+dependencies: []
