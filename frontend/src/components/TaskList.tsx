@@ -1,10 +1,16 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import APIClient from '@/lib/api';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
-import { Plus, Loader2, Inbox } from 'lucide-react';
+import SearchInput from './SearchInput';
+import FilterPanel from './FilterPanel';
+import SortDropdown, { SortField, SortOrder } from './SortDropdown';
+import { Plus, Loader2, Inbox, SearchX, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import type { Tag, Priority } from '@/types/task';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface Task {
     id: number;
@@ -14,35 +20,162 @@ interface Task {
     completed: boolean;
     created_at: string;
     updated_at: string;
+    priority?: Priority;
+    tags?: Tag[];
+    due_date?: string;
 }
 
 export default function TaskList() {
     const { user, token } = useAuth();
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
     const [tasks, setTasks] = useState<Task[]>([]);
+    const [tags, setTags] = useState<Tag[]>([]);
     const [loading, setLoading] = useState(true);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | null>(null);
+    const [showFilters, setShowFilters] = useState(false);
 
-   const fetchTasks = async () => {
-    if (!token) return; // user must be logged in
-    try {
-        // GET /api/tasks
-        const tasksFromApi = await APIClient.get<Task[]>(`/api/tasks`, token);
-        setTasks(tasksFromApi || []);
-    } catch (error: any) {
-        console.error("Failed to fetch tasks", error.message);
-        alert(error.message);
-    } finally {
-        setLoading(false);
-    }
-};
+    // Read filters and sort from URL
+    const filters = useMemo(() => {
+        const search = searchParams.get("search") || "";
+        const status = (searchParams.get("status") as "all" | "pending" | "completed") || "all";
+        const priorities = searchParams.get("priority")
+            ? (searchParams.get("priority")!.split(",") as Priority[])
+            : [];
+        const tagIds = searchParams.get("tags")
+            ? searchParams.get("tags")!.split(",").map(Number).filter(n => !isNaN(n))
+            : [];
+        const overdue = searchParams.get("overdue") === "true";
 
+        return { search, status, priorities, tagIds, overdue };
+    }, [searchParams]);
 
+    // Read sort from URL
+    const sortConfig = useMemo(() => {
+        const sortBy = searchParams.get("sort_by") as SortField | null;
+        const order = (searchParams.get("order") as SortOrder) || "desc";
+        return { sortBy, order };
+    }, [searchParams]);
+
+    // Debounce search
+    const debouncedSearch = useDebounce(filters.search, 300);
+
+    // Check if any filters are active
+    const hasActiveFilters = useMemo(() => {
+        return (
+            filters.status !== "all" ||
+            filters.priorities.length > 0 ||
+            filters.tagIds.length > 0 ||
+            filters.overdue
+        );
+    }, [filters]);
+
+    // Update URL with new filters
+    const updateFilters = useCallback((updates: Partial<typeof filters>) => {
+        const params = new URLSearchParams(searchParams.toString());
+        const merged = { ...filters, ...updates };
+
+        if (merged.search) params.set("search", merged.search);
+        else params.delete("search");
+
+        if (merged.status !== "all") params.set("status", merged.status);
+        else params.delete("status");
+
+        if (merged.priorities.length > 0) params.set("priority", merged.priorities.join(","));
+        else params.delete("priority");
+
+        if (merged.tagIds.length > 0) params.set("tags", merged.tagIds.join(","));
+        else params.delete("tags");
+
+        if (merged.overdue) params.set("overdue", "true");
+        else params.delete("overdue");
+
+        const queryString = params.toString();
+        router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    }, [filters, searchParams, router, pathname]);
+
+    // Update URL with new sort
+    const updateSort = useCallback((sortBy: SortField | null, order: SortOrder) => {
+        const params = new URLSearchParams(searchParams.toString());
+
+        if (sortBy) {
+            params.set("sort_by", sortBy);
+            params.set("order", order);
+        } else {
+            params.delete("sort_by");
+            params.delete("order");
+        }
+
+        const queryString = params.toString();
+        router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    }, [searchParams, router, pathname]);
+
+    // Clear all filters and sort
+    const clearFilters = useCallback(() => {
+        router.push(pathname);
+    }, [router, pathname]);
+
+    // Build query string for API
+    const buildApiQuery = useCallback(() => {
+        const params = new URLSearchParams();
+        if (debouncedSearch) params.append("search", debouncedSearch);
+        if (filters.status !== "all") params.append("status", filters.status);
+        if (filters.priorities.length > 0) params.append("priority", filters.priorities.join(","));
+        if (filters.tagIds.length > 0) params.append("tags", filters.tagIds.join(","));
+        if (filters.overdue) params.append("overdue", "true");
+        if (sortConfig.sortBy) {
+            params.append("sort_by", sortConfig.sortBy);
+            params.append("order", sortConfig.order);
+        }
+        return params.toString();
+    }, [debouncedSearch, filters, sortConfig]);
+
+    const fetchTasks = async () => {
+        if (!token) return;
+        try {
+            const queryString = buildApiQuery();
+            const endpoint = queryString ? `/api/tasks?${queryString}` : '/api/tasks';
+            const tasksFromApi = await APIClient.get<Task[]>(endpoint, token);
+            setTasks(tasksFromApi || []);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to fetch tasks";
+            console.error("Failed to fetch tasks:", message);
+            alert(message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchTags = async () => {
+        if (!token) return;
+        try {
+            const tagsFromApi = await APIClient.getTags(token);
+            setTags(tagsFromApi || []);
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Failed to fetch tags";
+            console.error("Failed to fetch tags:", message);
+        }
+    };
+
+    const handleTagCreated = (newTag: Tag) => {
+        setTags((prev) => [...prev, newTag]);
+    };
+
+    useEffect(() => {
+        if (user && token) {
+            fetchTags();
+        }
+    }, [user, token]);
+
+    // Re-fetch tasks when filters or sort change
     useEffect(() => {
         if (user && token) {
             fetchTasks();
         }
-    }, [user, token]);
+    }, [user, token, debouncedSearch, filters.status, filters.priorities.join(","), filters.tagIds.join(","), filters.overdue, sortConfig.sortBy, sortConfig.order]);
 
     const handleEdit = (task: Task) => {
         setEditingTask(task);
@@ -53,9 +186,6 @@ export default function TaskList() {
         fetchTasks();
     };
 
-    // Filter tasks if needed, or sort
-    const sortedTasks = [...tasks].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-
     if (loading) {
         return (
             <div className="flex h-64 items-center justify-center">
@@ -64,9 +194,11 @@ export default function TaskList() {
         );
     }
 
+    const showEmptyState = tasks.length === 0 && (debouncedSearch || hasActiveFilters);
+
     return (
         <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">My Tasks</h1>
                     <p className="text-slate-500 mt-1 text-sm sm:text-base">
@@ -82,7 +214,77 @@ export default function TaskList() {
                 </button>
             </div>
 
-            {tasks.length === 0 ? (
+            {/* Search, Filter Toggle, and Sort */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                <SearchInput
+                    value={filters.search}
+                    onChange={(value) => updateFilters({ search: value })}
+                    placeholder="Search tasks by title or description..."
+                    className="flex-1 max-w-md"
+                />
+                <div className="flex gap-2">
+                    <button
+                        onClick={() => setShowFilters(!showFilters)}
+                        className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border transition-all ${
+                            hasActiveFilters
+                                ? "bg-indigo-50 border-indigo-300 text-indigo-700"
+                                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                        }`}
+                    >
+                        <Filter size={18} />
+                        <span className="hidden sm:inline">Filters</span>
+                        {hasActiveFilters && (
+                            <span className="bg-indigo-600 text-white text-xs px-1.5 py-0.5 rounded-full">
+                                {filters.priorities.length + filters.tagIds.length + (filters.status !== "all" ? 1 : 0) + (filters.overdue ? 1 : 0)}
+                            </span>
+                        )}
+                        {showFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    </button>
+                    <SortDropdown
+                        sortBy={sortConfig.sortBy}
+                        order={sortConfig.order}
+                        onChange={updateSort}
+                    />
+                </div>
+            </div>
+
+            {/* Filter Panel */}
+            {showFilters && (
+                <div className="mb-6">
+                    <FilterPanel
+                        status={filters.status}
+                        onStatusChange={(status) => updateFilters({ status })}
+                        selectedPriorities={filters.priorities}
+                        onPriorityChange={(priorities) => updateFilters({ priorities })}
+                        availableTags={tags}
+                        selectedTagIds={filters.tagIds}
+                        onTagChange={(tagIds) => updateFilters({ tagIds })}
+                        overdue={filters.overdue}
+                        onOverdueChange={(overdue) => updateFilters({ overdue })}
+                        onClearAll={clearFilters}
+                        hasActiveFilters={hasActiveFilters || !!debouncedSearch}
+                    />
+                </div>
+            )}
+
+            {/* No tasks found after search/filter */}
+            {showEmptyState ? (
+                <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-slate-200">
+                    <div className="mx-auto w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                        <SearchX className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-slate-900 mb-2">No tasks found</h3>
+                    <p className="text-slate-500 max-w-sm mx-auto mb-6">
+                        No tasks match your current filters. Try adjusting your search or filters.
+                    </p>
+                    <button
+                        onClick={clearFilters}
+                        className="text-indigo-600 font-semibold hover:text-indigo-700"
+                    >
+                        Clear all filters
+                    </button>
+                </div>
+            ) : tasks.length === 0 ? (
                 <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-slate-200">
                     <div className="mx-auto w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                         <Inbox className="w-8 h-8 text-slate-400" />
@@ -100,7 +302,7 @@ export default function TaskList() {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {sortedTasks.map((task) => (
+                    {tasks.map((task) => (
                         <TaskCard
                             key={task.id}
                             task={task}
@@ -116,6 +318,8 @@ export default function TaskList() {
                     onClose={() => setIsFormOpen(false)}
                     onSuccess={handleSuccess}
                     editTask={editingTask}
+                    availableTags={tags}
+                    onTagCreated={handleTagCreated}
                 />
             )}
         </div>
