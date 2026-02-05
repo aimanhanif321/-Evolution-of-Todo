@@ -1,41 +1,38 @@
 <!-- SYNC IMPACT REPORT
-Version change: 1.0.0 -> 2.0.0 (MAJOR: Cloud-Native Platform Transformation)
+Version change: 5.0.0 -> 5.1.0 (MINOR: Added Project Governance AI Principles)
 Modified principles:
-  - "PROJECT IDENTITY" -> Updated to Phase IV Cloud-Native AI Platform
-  - "PROJECT GOAL" -> Expanded to include Kubernetes orchestration
-  - "TECHNOLOGY STACK" -> Extended with containerization and K8s tooling
-  - "DEVELOPMENT PHILOSOPHY" -> Enhanced with AI-driven DevOps principles
+  - None renamed
 Added sections:
-  - Section 15: CLOUD-NATIVE ARCHITECTURE
-  - Section 16: CONTAINERIZATION WITH DOCKER & GORDON
-  - Section 17: KUBERNETES ORCHESTRATION
-  - Section 18: HELM CHARTS AS INFRASTRUCTURE SPECS
-  - Section 19: AI-DRIVEN KUBERNETES OPERATIONS
-  - Section 20: SPEC-DRIVEN INFRASTRUCTURE
-  - Section 21: AI AGENTS IN DEVOPS
-  - Section 22: PHASE IV SUCCESS CRITERIA
-  - Section 23: GOVERNANCE & VERSIONING
-Removed sections: None (all previous sections preserved and extended)
+  - Part X: PROJECT GOVERNANCE AI (Sections 30-35)
+    - Section 30: GOVERNANCE HIERARCHY
+    - Section 31: UNDERSTANDING-FIRST PRINCIPLE
+    - Section 32: DEDUPLICATION ENFORCEMENT
+    - Section 33: DEPENDENCY SEQUENCING
+    - Section 34: GAP ANALYSIS PROTOCOL
+    - Section 35: PHASE ALIGNMENT RULES
+Removed sections: None
 Templates requiring updates:
-  - plan-template.md: Add infrastructure planning sections
-  - tasks-template.md: Add K8s deployment task categories
-  - spec-template.md: Add infrastructure spec sections
-Follow-up TODOs: None
+  - plan-template.md: ✅ Already generic - no update needed
+  - tasks-template.md: ✅ Already generic - no update needed
+  - spec-template.md: ✅ Already generic - no update needed
+Follow-up TODOs:
+  - Validate existing tasks.md files against deduplication rules
+  - Run gap analysis on Phase V/VI/VII artifacts
 -->
 
 # PROJECT CONSTITUTION — TASKORA
-## Phase IV: Cloud-Native AI Platform
+## Phase VII: Cloud-Native Microservices Architecture
 
-**Constitution Version:** 2.0.0
+**Constitution Version:** 5.1.0
 **Ratification Date:** 2025-01-15
-**Last Amended:** 2026-01-22
-**Classification:** Production Cloud Platform
+**Last Amended:** 2026-02-04
+**Classification:** Production Cloud Platform with Event-Driven Microservices
 
 ---
 
 ## PREAMBLE
 
-This Constitution establishes the governance framework for **Taskora** as it transforms from a web application into a fully cloud-native, AI-operated platform. Phase IV represents the culmination of modern software engineering: containerized microservices orchestrated by Kubernetes, defined entirely through declarative specifications, and operated by AI agents.
+This Constitution establishes the governance framework for **Taskora** as an **AI-powered task management platform** built on **cloud-native microservices architecture**. The system leverages event-driven design with Kafka, distributed application runtime via Dapr, and Kubernetes orchestration for horizontal scalability, fault tolerance, and observability.
 
 This document serves as the supreme authority for all development, deployment, and operational decisions.
 
@@ -49,40 +46,48 @@ This document serves as the supreme authority for all development, deployment, a
 |-----------|-------|
 | Application Name | **Taskora** |
 | Tagline | *Organize. Focus. Finish.* |
-| Current Phase | **Phase IV — Cloud-Native AI Platform** |
-| Platform Type | AI-Operated Kubernetes Platform |
-| Deployment Model | Local Kubernetes (Minikube) with Production Parity |
+| Current Phase | **Phase VII — Cloud-Native Microservices** |
+| Platform Type | AI-Powered Task Management on Event-Driven Microservices |
+| Deployment Model | Kubernetes (DOKS Production / Minikube Local) |
 
 **Phase Evolution:**
 - Phase I: Console-based Todo application (COMPLETE)
 - Phase II: Full-stack web application (COMPLETE)
 - Phase III: AI Chatbot Integration with Cohere (COMPLETE)
-- Phase IV: Cloud-Native Kubernetes Deployment (CURRENT)
+- Phase IV: Cloud-Native Kubernetes Deployment (COMPLETE)
+- Phase V: Production Cloud-Native Microservices (COMPLETE)
+- Phase VI: Advanced Todo Features (COMPLETE)
+- Phase VII: Cloud-Native Microservices Architecture (CURRENT)
+- Phase VIII: AI-Enhanced Smart Features (PLANNED)
 
 **Critical Declaration:**
-Phase IV transforms Taskora from a deployed web application into a **cloud-native AI-operated platform**. This is NOT merely containerization—it is a fundamental architectural evolution where:
-- Infrastructure is defined as code (Helm Charts)
-- Deployments are managed by AI agents (kubectl-ai, Kagent)
-- Containers are built with AI assistance (Gordon)
-- The entire system follows Spec-Driven Infrastructure principles
+Phase VII establishes Taskora as a **fully cloud-native microservices platform** with:
+- Event-driven architecture using Kafka for loose coupling
+- Dapr runtime for service mesh, pub/sub, state, bindings, and secrets
+- Horizontal scalability via Kubernetes auto-scaling
+- Comprehensive observability (metrics, logging, tracing)
+- Fault tolerance with circuit breakers and retries
+- Local development parity using Minikube
 
 ---
 
 ### 2. PROJECT VISION & OBJECTIVES
 
 **Vision Statement:**
-To demonstrate that modern cloud platforms can be fully specified, containerized, and operated by AI agents—transforming DevOps from imperative commands to declarative specifications.
+To build a highly scalable, resilient, and observable AI-powered task management system using cloud-native principles that runs consistently from local development to production.
 
-**Phase IV Objectives:**
+**Phase VII Core Goals:**
 
-| # | Objective | Success Metric |
-|---|-----------|----------------|
-| 1 | Containerize all services | 100% services in Docker containers |
-| 2 | Deploy to local Kubernetes | All pods running in Minikube |
-| 3 | Define infrastructure as specs | Complete Helm charts for all components |
-| 4 | Enable AI-driven operations | kubectl-ai and Kagent operational |
-| 5 | Achieve production parity | Local environment mirrors production |
-| 6 | Zero-touch deployments | Full deployment via AI agents |
+| # | Goal | Description |
+|---|------|-------------|
+| 1 | Loose Coupling | Services communicate via events, not direct calls where possible |
+| 2 | Horizontal Scalability | All components scale independently via Kubernetes HPA |
+| 3 | Observability | Full visibility into system behavior (metrics, logs, traces) |
+| 4 | Fault Tolerance | Graceful degradation, circuit breakers, automatic retries |
+| 5 | Cloud-Native Design | Kubernetes-native even when running locally on Minikube |
+
+**Goal Statement:**
+> "My AI-powered task management system runs on cloud-native microservices with full Dapr capabilities: Pub/Sub, State Management, Service Invocation, Bindings, and Secrets Management."
 
 ---
 
@@ -90,542 +95,508 @@ To demonstrate that modern cloud platforms can be fully specified, containerized
 
 **Core Tenets:**
 
-1. **Specification Supremacy**: All infrastructure, deployments, and configurations MUST be derived from specifications. No ad-hoc commands.
+1. **Cloud-Native First**: Design for Kubernetes from the start. No local-only patterns.
 
-2. **AI-First Operations**: Human operators define WHAT; AI agents determine HOW. Direct kubectl commands are permitted only for debugging.
+2. **Event-Driven by Default**: Publish events for all state changes. Consumers decide what to act on.
 
-3. **Declarative Everything**: Imperative scripts are prohibited. All system state MUST be expressible as declarative YAML/Helm templates.
+3. **Dapr as Infrastructure**: Use Dapr building blocks instead of direct SDK integrations. This enables portability across cloud providers.
 
-4. **Immutable Infrastructure**: Containers are never modified in place. All changes require new image builds and redeployments.
+4. **Local-Prod Parity**: Minikube + Dapr locally MUST behave identically to DOKS production.
 
-5. **GitOps Principles**: The Git repository is the single source of truth for both application code AND infrastructure state.
+5. **Graceful Degradation**: System MUST remain functional when non-critical components fail.
 
-**Agentic DevOps Workflow:**
+6. **Observability as Code**: Metrics, logging, and tracing are first-class requirements, not afterthoughts.
+
+---
+
+## PART II: HIGH-LEVEL ARCHITECTURE
+
+### 4. ARCHITECTURE DIAGRAM (ASCII)
+
 ```
-1. Define requirement in specification
-2. AI agent generates Helm chart / Kubernetes manifest
-3. AI agent validates against cluster state
-4. AI agent applies changes via kubectl-ai or Kagent
-5. AI agent monitors deployment health
-6. AI agent reports status and handles rollback if needed
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              KUBERNETES CLUSTER                                  │
+│                        (Minikube Local / DOKS Production)                       │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │                           INGRESS CONTROLLER                               │  │
+│  │                        (NGINX + TLS Termination)                          │  │
+│  └─────────────────────────────────┬─────────────────────────────────────────┘  │
+│                                    │                                            │
+│  ┌─────────────────────────────────┼─────────────────────────────────────────┐  │
+│  │                                 │                                         │  │
+│  │    ┌────────────────────┐       │      ┌────────────────────┐            │  │
+│  │    │   FRONTEND POD     │       │      │   BACKEND POD      │            │  │
+│  │    │ ┌────────────────┐ │       │      │ ┌────────────────┐ │            │  │
+│  │    │ │   Next.js      │ │       │      │ │   FastAPI      │ │            │  │
+│  │    │ │   App          │ │◄──────┼─────►│ │   App          │ │            │  │
+│  │    │ └───────┬────────┘ │       │      │ └───────┬────────┘ │            │  │
+│  │    │         │          │       │      │         │          │            │  │
+│  │    │ ┌───────▼────────┐ │       │      │ ┌───────▼────────┐ │            │  │
+│  │    │ │ DAPR SIDECAR   │ │◄──────┼─────►│ │ DAPR SIDECAR   │ │            │  │
+│  │    │ │ (daprd)        │ │  Service     │ │ (daprd)        │ │            │  │
+│  │    │ └────────────────┘ │  Invocation  │ └───────┬────────┘ │            │  │
+│  │    └────────────────────┘             │         │          │            │  │
+│  │                                       └─────────┼──────────┘            │  │
+│  │                                                 │                       │  │
+│  │  ┌──────────────────────────────────────────────┼─────────────────────┐ │  │
+│  │  │                    DAPR CONTROL PLANE        │                     │ │  │
+│  │  │  ┌──────────┐  ┌──────────┐  ┌──────────┐   │                     │ │  │
+│  │  │  │ Placement│  │ Operator │  │ Sentry   │   │                     │ │  │
+│  │  │  │ Service  │  │          │  │ (mTLS)   │   │                     │ │  │
+│  │  │  └──────────┘  └──────────┘  └──────────┘   │                     │ │  │
+│  │  └────────────────────────────────────────────┼─────────────────────┘ │  │
+│  │                                               │                       │  │
+│  └───────────────────────────────────────────────┼───────────────────────┘  │
+│                                                  │                          │
+│  ┌───────────────────────────────────────────────┼───────────────────────┐  │
+│  │                     DATA & MESSAGING LAYER    │                       │  │
+│  │                                               │                       │  │
+│  │  ┌─────────────────┐  ┌──────────────────┐   │   ┌─────────────────┐ │  │
+│  │  │   POSTGRESQL    │  │    REDPANDA      │◄──┘   │     REDIS       │ │  │
+│  │  │   (Primary DB)  │  │    (Kafka)       │       │   (State Store) │ │  │
+│  │  │                 │  │                  │       │                 │ │  │
+│  │  │  - Tasks        │  │  - task-events   │       │  - Session      │ │  │
+│  │  │  - Users        │  │  - user-events   │       │  - Cache        │ │  │
+│  │  │  - Tags         │  │  - chat-events   │       │  - Locks        │ │  │
+│  │  └─────────────────┘  └──────────────────┘       └─────────────────┘ │  │
+│  │                                                                       │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                     SECRETS STORE                                      │  │
+│  │                                                                        │  │
+│  │  ┌─────────────────────────────────────────────────────────────────┐  │  │
+│  │  │   KUBERNETES SECRETS  (or HashiCorp Vault in production)        │  │  │
+│  │  │   - DATABASE_URL                                                 │  │  │
+│  │  │   - COHERE_API_KEY                                               │  │  │
+│  │  │   - BETTER_AUTH_SECRET                                           │  │  │
+│  │  └─────────────────────────────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                                    │
+                                    │ HTTPS
+                                    │
+                            ┌───────▼───────┐
+                            │   BROWSER     │
+                            │   (Client)    │
+                            └───────────────┘
 ```
 
 ---
 
-## PART II: TECHNOLOGY STACK
+### 5. DAPR CAPABILITIES MATRIX
 
-### 4. APPLICATION STACK (PRESERVED)
+**Required Dapr Building Blocks:**
+
+| Capability | Building Block | Component | Purpose |
+|------------|---------------|-----------|---------|
+| **Pub/Sub** | `pubsub.kafka` | Redpanda | Event streaming for task, user, chat events |
+| **State Management** | `state.redis` | Redis | Session storage, caching, distributed locks |
+| **Service Invocation** | Built-in | Dapr Sidecar | Secure service-to-service calls with retries |
+| **Bindings (Input)** | `bindings.cron` | Dapr Cron | Scheduled jobs (reminders, recurring tasks) |
+| **Bindings (Output)** | `bindings.http` | HTTP | External API calls (Cohere AI, webhooks) |
+| **Secrets Management** | `secretstores.kubernetes` | K8s Secrets | Secure credential storage |
+
+**Dapr Component Configuration:**
+
+```yaml
+# Pub/Sub Component (pubsub.yaml)
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda:9092"
+    - name: consumerGroup
+      value: "taskora"
+    - name: authRequired
+      value: "false"
+
+# State Store Component (statestore.yaml)
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: statestore
+spec:
+  type: state.redis
+  version: v1
+  metadata:
+    - name: redisHost
+      value: "redis:6379"
+    - name: redisPassword
+      secretKeyRef:
+        name: redis-password
+        key: password
+
+# Cron Binding for Reminders (cron-binding.yaml)
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: reminder-cron
+spec:
+  type: bindings.cron
+  version: v1
+  metadata:
+    - name: schedule
+      value: "@every 1m"  # Check for due reminders every minute
+
+# Secrets Component (secrets.yaml)
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: kubernetes-secrets
+spec:
+  type: secretstores.kubernetes
+  version: v1
+```
+
+---
+
+### 6. COMPONENT RESPONSIBILITIES
+
+| Component | Responsibility | Scaling Strategy |
+|-----------|---------------|------------------|
+| **Frontend (Next.js)** | UI rendering, client-side state, API calls via Dapr | Horizontal (stateless) |
+| **Backend (FastAPI)** | Business logic, DB operations, event publishing | Horizontal (stateless) |
+| **Dapr Sidecar** | Service discovery, pub/sub, state, secrets, retries | 1:1 with app pod |
+| **PostgreSQL** | Primary data persistence (tasks, users, tags) | Vertical / Read replicas |
+| **Redpanda (Kafka)** | Event streaming, async communication | Horizontal (partitions) |
+| **Redis** | State store, caching, session, distributed locks | Horizontal (cluster mode) |
+| **Dapr Control Plane** | Service mesh management, mTLS, placement | HA deployment |
+
+---
+
+### 7. SERVICE COMMUNICATION PATTERNS
+
+**Pattern 1: Synchronous Request-Response (Service Invocation)**
+
+```
+┌──────────┐     HTTP/gRPC      ┌───────────────┐     HTTP/gRPC      ┌──────────┐
+│ Frontend │ ──────────────────►│ Dapr Sidecar  │ ──────────────────►│ Backend  │
+│          │◄────────────────── │ (mTLS, retry) │◄────────────────── │          │
+└──────────┘     Response       └───────────────┘     Response       └──────────┘
+```
+
+**Use Cases:**
+- Get task list
+- Create/update task
+- User authentication
+- AI chat requests
+
+**Pattern 2: Asynchronous Event-Driven (Pub/Sub)**
+
+```
+┌──────────┐                    ┌───────────────┐                    ┌──────────┐
+│ Backend  │ ───publish────────►│   Redpanda    │ ───subscribe──────►│ Consumer │
+│          │  "task.created"    │   (Kafka)     │                    │ Service  │
+└──────────┘                    └───────────────┘                    └──────────┘
+```
+
+**Event Topics:**
+
+| Topic | Events | Publishers | Subscribers |
+|-------|--------|------------|-------------|
+| `task-events` | created, updated, deleted, completed, recurred | Backend | Analytics, Notifications |
+| `user-events` | registered, logged_in, logged_out | Backend | Analytics, Audit |
+| `chat-events` | message_sent, response_received | Backend | Analytics, AI Training |
+| `reminder-events` | reminder_triggered | Cron Binding | Notification Service |
+
+**Pattern 3: Scheduled Jobs (Cron Bindings)**
+
+```
+┌──────────────┐     Trigger      ┌───────────────┐
+│ Dapr Cron    │ ────────────────►│ Backend       │
+│ (every 1min) │                  │ /reminders    │
+└──────────────┘                  └───────┬───────┘
+                                          │
+                                          │ Publish
+                                          ▼
+                                  ┌───────────────┐
+                                  │  Redpanda     │
+                                  │ (reminder-    │
+                                  │  events)      │
+                                  └───────────────┘
+```
+
+---
+
+### 8. DATA FLOW ARCHITECTURE
+
+**Task Creation Flow:**
+
+```
+1. User submits task form
+         │
+         ▼
+2. Frontend calls Backend via Dapr Service Invocation
+         │
+         ▼
+3. Backend validates request
+         │
+         ▼
+4. Backend persists task to PostgreSQL
+         │
+         ▼
+5. Backend publishes "task.created" event to Kafka
+         │
+         ▼
+6. Backend returns task to Frontend
+         │
+         ▼
+7. Event consumers (analytics, notifications) process event asynchronously
+```
+
+**Reminder Notification Flow:**
+
+```
+1. Dapr Cron triggers /api/reminders endpoint every minute
+         │
+         ▼
+2. Backend queries tasks with reminder_at <= NOW and NOT sent
+         │
+         ▼
+3. For each due reminder:
+   - Publish "task.reminder" event
+   - Mark reminder as sent in DB
+         │
+         ▼
+4. Notification service (future) subscribes and sends browser push
+```
+
+---
+
+## PART III: FAULT TOLERANCE & RESILIENCE
+
+### 9. RESILIENCE PATTERNS
+
+**Circuit Breaker (via Dapr Resiliency):**
+
+```yaml
+# resiliency.yaml
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: taskora-resiliency
+spec:
+  policies:
+    retries:
+      default:
+        policy: constant
+        maxRetries: 3
+        duration: 1s
+    circuitBreakers:
+      default:
+        maxRequests: 1
+        interval: 10s
+        timeout: 30s
+        trip: consecutiveFailures >= 5
+  targets:
+    apps:
+      taskora-backend:
+        retry: default
+        circuitBreaker: default
+```
+
+**Graceful Degradation Matrix:**
+
+| Component Failure | System Behavior | User Impact |
+|-------------------|-----------------|-------------|
+| Redis (state store) down | Fallback to DB for sessions | Slight latency increase |
+| Redpanda (Kafka) down | Task CRUD works, events queued | No real-time updates |
+| Backend pod crash | Kubernetes restarts, retry succeeds | Brief delay (<10s) |
+| PostgreSQL down | All writes fail | Error message, retry prompt |
+| Dapr sidecar crash | Direct HTTP falls back | Degraded (no retries/mTLS) |
+
+---
+
+### 10. OBSERVABILITY ARCHITECTURE
+
+**Three Pillars:**
+
+| Pillar | Technology | Data Collected |
+|--------|------------|----------------|
+| **Metrics** | Prometheus + Grafana | Request rate, latency, errors, pod resources |
+| **Logging** | Structured JSON → Loki | Request logs, error traces, business events |
+| **Tracing** | Zipkin / Jaeger | Distributed request tracing across services |
+
+**Dapr Observability Integration:**
+
+```yaml
+# Dapr configuration for observability
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: taskora-config
+spec:
+  tracing:
+    samplingRate: "1"
+    zipkin:
+      endpointAddress: "http://zipkin:9411/api/v2/spans"
+  metrics:
+    enabled: true
+  logging:
+    apiLogging:
+      enabled: true
+```
+
+**Health Check Endpoints:**
+
+| Endpoint | Purpose | Check |
+|----------|---------|-------|
+| `GET /health` | Liveness | App is running |
+| `GET /ready` | Readiness | DB connected, dependencies up |
+| `GET /metrics` | Prometheus | Application metrics |
+
+---
+
+## PART IV: SECRETS MANAGEMENT
+
+### 11. SECRETS ARCHITECTURE
+
+**Secret Categories:**
+
+| Category | Secrets | Storage |
+|----------|---------|---------|
+| Database | `DATABASE_URL` | Kubernetes Secret |
+| AI Services | `COHERE_API_KEY`, `GEMINI_API_KEY` | Kubernetes Secret |
+| Authentication | `BETTER_AUTH_SECRET`, `JWT_SECRET` | Kubernetes Secret |
+| Infrastructure | `REDIS_PASSWORD` | Kubernetes Secret |
+
+**Dapr Secrets Access Pattern:**
+
+```python
+# Backend retrieves secrets via Dapr
+from dapr.clients import DaprClient
+
+async def get_database_url():
+    with DaprClient() as d:
+        secret = d.get_secret(
+            store_name="kubernetes-secrets",
+            key="DATABASE_URL"
+        )
+        return secret.secret["DATABASE_URL"]
+```
+
+**Secret Injection (Pod Spec):**
+
+```yaml
+# Secrets injected as environment variables
+env:
+  - name: DATABASE_URL
+    valueFrom:
+      secretKeyRef:
+        name: taskora-secrets
+        key: DATABASE_URL
+```
+
+---
+
+## PART V: LOCAL DEVELOPMENT WITH MINIKUBE
+
+### 12. MINIKUBE SETUP
+
+**Prerequisites:**
+- Minikube v1.32+
+- Docker Desktop or Hyperkit
+- kubectl
+- Helm 3
+- Dapr CLI
+
+**Local Cluster Setup:**
+
+```bash
+# Start Minikube with sufficient resources
+minikube start \
+  --cpus 4 \
+  --memory 8192 \
+  --driver docker \
+  --kubernetes-version v1.28.0
+
+# Enable required addons
+minikube addons enable ingress
+minikube addons enable metrics-server
+minikube addons enable dashboard
+
+# Install Dapr
+dapr init -k --wait
+
+# Apply Dapr components
+kubectl apply -f dapr/components-local/
+
+# Deploy application
+helm upgrade --install taskora ./helm/taskora \
+  -n taskora --create-namespace \
+  -f ./helm/taskora/values-local.yaml
+
+# Access application
+minikube tunnel  # In separate terminal
+# Application available at http://localhost
+```
+
+**Local vs Production Differences:**
+
+| Aspect | Local (Minikube) | Production (DOKS) |
+|--------|------------------|-------------------|
+| Kubernetes | Minikube (single node) | DOKS (3+ nodes) |
+| Ingress | Minikube Ingress | NGINX + cert-manager |
+| TLS | Self-signed or none | Let's Encrypt |
+| Database | PostgreSQL in-cluster | DO Managed Database |
+| Secrets | Local K8s secrets | External Secrets Operator |
+| Replicas | 1 per service | 2-3 per service |
+
+---
+
+## PART VI: TECHNOLOGY STACK (PRESERVED)
+
+### 13. APPLICATION STACK
 
 **Frontend:**
 - Framework: Next.js 16+ (App Router)
 - Language: TypeScript
 - Styling: Tailwind CSS
 - Icons: Lucide React
-- Authentication: JWT-based (via Backend)
+- State: React Query + Zustand
+- Notifications: Web Push API
 
 **Backend:**
 - Framework: FastAPI
 - Language: Python 3.11+
 - ORM: SQLModel
 - AI Integration: Cohere API v2
-- API Style: REST with JSON responses
+- Async: asyncio + httpx
+- Validation: Pydantic v2
 
-**Database:**
-- PostgreSQL (containerized)
-- Persistent Volume Claims for data durability
-
----
-
-### 5. CLOUD-NATIVE STACK (PHASE IV)
-
-**Containerization Layer:**
-
-| Tool | Purpose | Role |
-|------|---------|------|
-| Docker Desktop | Container runtime | Build and run containers locally |
-| Gordon | AI-assisted containerization | Generate optimized Dockerfiles |
-| Docker Compose | Local development | Multi-container orchestration for dev |
-
-**Kubernetes Layer:**
-
-| Tool | Purpose | Role |
-|------|---------|------|
-| Minikube | Local K8s cluster | Production-parity local environment |
-| kubectl | Cluster CLI | Direct cluster interaction |
-| kubectl-ai | AI-powered kubectl | Natural language K8s operations |
-| Kagent | Kubernetes AI agent | Autonomous cluster management |
-
-**Infrastructure-as-Code Layer:**
-
-| Tool | Purpose | Role |
-|------|---------|------|
-| Helm | Package manager | Define system as charts |
-| Helm Charts | Infrastructure specs | Declarative service definitions |
-| Values files | Configuration | Environment-specific settings |
+**Infrastructure:**
+- Container Runtime: Docker
+- Orchestration: Kubernetes
+- Service Mesh: Dapr 1.13+
+- Event Streaming: Redpanda (Kafka-compatible)
+- Cache/State: Redis 7+
+- Database: PostgreSQL 15
 
 ---
 
-## PART III: CLOUD-NATIVE ARCHITECTURE
+## PART VII: PRESERVED SECTIONS
 
-### 6. SYSTEM ARCHITECTURE
+### 14-26. PHASE VI FEATURES (COMPLETE)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     MINIKUBE CLUSTER                            │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │                    INGRESS CONTROLLER                     │  │
-│  │                 (nginx-ingress / traefik)                 │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                              │                                   │
-│         ┌────────────────────┼────────────────────┐             │
-│         │                    │                    │             │
-│         ▼                    ▼                    ▼             │
-│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
-│  │  FRONTEND   │     │   BACKEND   │     │  MCP SERVER │       │
-│  │   SERVICE   │     │   SERVICE   │     │   SERVICE   │       │
-│  │  (Next.js)  │     │  (FastAPI)  │     │   (Tools)   │       │
-│  │             │     │             │     │             │       │
-│  │ Replicas: 2 │     │ Replicas: 3 │     │ Replicas: 2 │       │
-│  └─────────────┘     └──────┬──────┘     └─────────────┘       │
-│                             │                                   │
-│                             ▼                                   │
-│                    ┌─────────────────┐                         │
-│                    │   POSTGRESQL    │                         │
-│                    │   STATEFULSET   │                         │
-│                    │                 │                         │
-│                    │  PVC: 10Gi     │                         │
-│                    └─────────────────┘                         │
-│                                                                 │
-│  ┌───────────────────────────────────────────────────────────┐  │
-│  │              CONFIGMAPS & SECRETS                         │  │
-│  │  - app-config    - db-credentials    - cohere-api-key    │  │
-│  └───────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                    ┌─────────┴─────────┐
-                    │   AI OPERATORS    │
-                    │  kubectl-ai       │
-                    │  Kagent           │
-                    │  Gordon           │
-                    └───────────────────┘
-```
-
----
-
-### 7. SERVICE DEFINITIONS
-
-**Frontend Service:**
-```yaml
-Name: taskora-frontend
-Type: Deployment
-Replicas: 2
-Port: 3000
-Image: taskora/frontend:latest
-Resources:
-  requests: { cpu: 100m, memory: 128Mi }
-  limits: { cpu: 500m, memory: 512Mi }
-Health:
-  livenessProbe: /api/health
-  readinessProbe: /api/ready
-```
-
-**Backend Service:**
-```yaml
-Name: taskora-backend
-Type: Deployment
-Replicas: 3
-Port: 8000
-Image: taskora/backend:latest
-Resources:
-  requests: { cpu: 200m, memory: 256Mi }
-  limits: { cpu: 1000m, memory: 1Gi }
-Health:
-  livenessProbe: /health
-  readinessProbe: /ready
-Environment:
-  - DATABASE_URL (from Secret)
-  - COHERE_API_KEY (from Secret)
-  - BETTER_AUTH_SECRET (from Secret)
-```
-
-**Database Service:**
-```yaml
-Name: taskora-db
-Type: StatefulSet
-Replicas: 1
-Port: 5432
-Image: postgres:15-alpine
-Storage: 10Gi PersistentVolumeClaim
-```
-
----
-
-## PART IV: CONTAINERIZATION
-
-### 8. DOCKER & GORDON GOVERNANCE
-
-**Containerization Principles:**
-
-1. **AI-Assisted Dockerfile Generation**: Gordon MUST be used to generate initial Dockerfiles. Manual Dockerfile creation is discouraged.
-
-2. **Multi-Stage Builds**: All production images MUST use multi-stage builds to minimize image size.
-
-3. **Non-Root Execution**: All containers MUST run as non-root users.
-
-4. **Layer Optimization**: Gordon MUST optimize layer ordering for cache efficiency.
-
-**Gordon Usage Protocol:**
-```bash
-# Generate optimized Dockerfile
-gordon dockerfile generate --app frontend --framework nextjs
-
-# Analyze existing Dockerfile
-gordon analyze ./Dockerfile --suggest-improvements
-
-# Build with AI optimization
-gordon build --optimize --target production
-```
-
-**Required Dockerfile Standards:**
-
-| Requirement | Enforcement |
-|-------------|-------------|
-| Base image pinned to specific version | MANDATORY |
-| Multi-stage build | MANDATORY for production |
-| Non-root USER directive | MANDATORY |
-| HEALTHCHECK instruction | MANDATORY |
-| .dockerignore present | MANDATORY |
-| No secrets in image layers | MANDATORY |
-
----
-
-### 9. CONTAINER REGISTRY
-
-**Local Development:**
-- Images built and stored in Minikube's Docker daemon
-- Command: `eval $(minikube docker-env)`
-
-**Image Naming Convention:**
-```
-taskora/<service>:<version>
-taskora/<service>:latest
-
-Examples:
-  taskora/frontend:1.0.0
-  taskora/backend:1.0.0
-  taskora/mcp-server:1.0.0
-```
-
----
-
-## PART V: KUBERNETES ORCHESTRATION
-
-### 10. MINIKUBE CONFIGURATION
-
-**Cluster Requirements:**
-
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| CPUs | 4 | 6 |
-| Memory | 8GB | 12GB |
-| Disk | 40GB | 60GB |
-| Driver | docker | docker |
-
-**Required Addons:**
-```bash
-minikube addons enable ingress
-minikube addons enable metrics-server
-minikube addons enable dashboard
-minikube addons enable storage-provisioner
-```
-
-**Cluster Initialization:**
-```bash
-minikube start \
-  --cpus=4 \
-  --memory=8192 \
-  --disk-size=40g \
-  --driver=docker \
-  --kubernetes-version=v1.28.0
-```
-
----
-
-### 11. HELM CHARTS AS INFRASTRUCTURE SPECIFICATIONS
-
-**Chart Structure:**
-```
-helm/
-└── taskora/
-    ├── Chart.yaml              # Chart metadata
-    ├── values.yaml             # Default configuration
-    ├── values-dev.yaml         # Development overrides
-    ├── values-prod.yaml        # Production overrides
-    └── templates/
-        ├── _helpers.tpl        # Template helpers
-        ├── frontend/
-        │   ├── deployment.yaml
-        │   ├── service.yaml
-        │   └── hpa.yaml
-        ├── backend/
-        │   ├── deployment.yaml
-        │   ├── service.yaml
-        │   └── hpa.yaml
-        ├── database/
-        │   ├── statefulset.yaml
-        │   ├── service.yaml
-        │   └── pvc.yaml
-        ├── ingress.yaml
-        ├── configmap.yaml
-        └── secrets.yaml
-```
-
-**Helm Chart Principles:**
-
-1. **Charts ARE Specifications**: Helm charts serve as the declarative specification for all infrastructure. They are NOT just deployment scripts.
-
-2. **Values as Configuration**: All environment-specific settings MUST be in values files, never hardcoded in templates.
-
-3. **Template Reusability**: Common patterns MUST be abstracted into `_helpers.tpl`.
-
-4. **Validation**: All charts MUST pass `helm lint` and `helm template` validation.
-
-**Chart Versioning:**
-- Chart version follows SemVer
-- App version tracks application release
-- Both versions MUST be updated on changes
-
----
-
-### 12. AI-DRIVEN KUBERNETES OPERATIONS
-
-**kubectl-ai Integration:**
-
-kubectl-ai enables natural language interaction with the Kubernetes cluster:
-
-```bash
-# Natural language queries
-kubectl-ai "show me all pods that are not running"
-kubectl-ai "scale the backend deployment to 5 replicas"
-kubectl-ai "what's consuming the most memory in the cluster"
-
-# Deployment operations
-kubectl-ai "deploy the latest frontend image"
-kubectl-ai "rollback the backend to the previous version"
-
-# Troubleshooting
-kubectl-ai "why is the backend pod crashing"
-kubectl-ai "show me the logs from pods with errors"
-```
-
-**Kagent Autonomous Operations:**
-
-Kagent operates as a fully autonomous Kubernetes agent:
-
-| Capability | Description |
-|------------|-------------|
-| Health Monitoring | Continuously monitors pod health |
-| Auto-Scaling | Adjusts replicas based on load |
-| Self-Healing | Restarts failed containers |
-| Resource Optimization | Right-sizes resource requests |
-| Anomaly Detection | Identifies unusual cluster behavior |
-| Incident Response | Automated remediation actions |
-
-**Kagent Configuration:**
-```yaml
-apiVersion: kagent.io/v1
-kind: AgentPolicy
-metadata:
-  name: taskora-operator
-spec:
-  watchNamespace: taskora
-  capabilities:
-    - healthMonitoring
-    - autoScaling
-    - selfHealing
-    - resourceOptimization
-  escalation:
-    alertThreshold: warning
-    notifyChannel: slack
-  autonomy:
-    level: supervised  # supervised | autonomous
-    approvalRequired:
-      - deleteDeployment
-      - scaleToZero
-```
-
----
-
-## PART VI: SPEC-DRIVEN INFRASTRUCTURE
-
-### 13. INFRASTRUCTURE SPECIFICATION PROTOCOL
-
-**Principle:** Infrastructure follows the same Spec-Driven Development methodology as application code.
-
-**Specification Hierarchy:**
-```
-specs/
-├── infrastructure/
-│   ├── cluster.spec.md         # Cluster requirements
-│   ├── networking.spec.md      # Ingress, services, DNS
-│   ├── storage.spec.md         # PVCs, storage classes
-│   └── security.spec.md        # RBAC, secrets, policies
-├── deployment/
-│   ├── frontend.deploy.md      # Frontend deployment spec
-│   ├── backend.deploy.md       # Backend deployment spec
-│   └── database.deploy.md      # Database deployment spec
-└── operations/
-    ├── scaling.ops.md          # Scaling policies
-    ├── monitoring.ops.md       # Observability requirements
-    └── disaster-recovery.md    # Backup and recovery
-```
-
-**Spec-to-Manifest Flow:**
-```
-1. Write infrastructure specification (Markdown)
-2. AI agent interprets specification
-3. AI agent generates Helm values / K8s manifests
-4. Human reviews generated artifacts
-5. AI agent applies to cluster
-6. AI agent validates deployment matches spec
-```
-
----
-
-### 14. CONFIGURATION MANAGEMENT
-
-**ConfigMaps:**
-```yaml
-# Non-sensitive application configuration
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: taskora-config
-data:
-  API_BASE_URL: "http://taskora-backend:8000"
-  LOG_LEVEL: "info"
-  ENABLE_METRICS: "true"
-```
-
-**Secrets Management:**
-```yaml
-# Sensitive data - MUST be base64 encoded
-# In production, use external secrets operator
-apiVersion: v1
-kind: Secret
-metadata:
-  name: taskora-secrets
-type: Opaque
-data:
-  DATABASE_URL: <base64>
-  COHERE_API_KEY: <base64>
-  BETTER_AUTH_SECRET: <base64>
-```
-
-**Secret Handling Rules:**
-1. NEVER commit plaintext secrets to Git
-2. Use `kubectl create secret` or sealed-secrets
-3. Reference secrets via environment variables
-4. Rotate secrets on compromise
-
----
-
-## PART VII: AI AGENTS IN DEVOPS
-
-### 15. AI AGENT GOVERNANCE
-
-**Agent Hierarchy:**
-
-| Agent | Domain | Authority Level |
-|-------|--------|-----------------|
-| Gordon | Containerization | Advisory + Execution |
-| kubectl-ai | Cluster Operations | Supervised Execution |
-| Kagent | Autonomous Operations | Policy-Bounded Autonomy |
-| Spec-Master | Specification Compliance | Validation Authority |
-
-**Agent Interaction Protocol:**
-
-1. **Gordon** generates Dockerfiles and optimizes images
-2. **kubectl-ai** receives natural language deployment commands
-3. **Kagent** monitors cluster and performs autonomous operations
-4. **Spec-Master** validates all changes against specifications
-
-**Human Oversight Requirements:**
-
-| Operation | Approval Required |
-|-----------|-------------------|
-| Create namespace | No |
-| Deploy new version | No (if tests pass) |
-| Scale up | No |
-| Scale down to zero | YES |
-| Delete deployment | YES |
-| Modify secrets | YES |
-| Change resource limits | No (within bounds) |
-| Rollback | No |
-
----
-
-### 16. OBSERVABILITY & MONITORING
-
-**Required Metrics:**
-- Pod CPU/Memory utilization
-- Request latency (p50, p95, p99)
-- Error rates by endpoint
-- Database connection pool status
-- Container restart counts
-
-**Logging Standards:**
-- Structured JSON logging
-- Correlation IDs across services
-- Log levels: DEBUG, INFO, WARN, ERROR
-- Centralized via stdout/stderr
-
-**Health Endpoints:**
-```
-Frontend:
-  - GET /api/health → 200 OK
-  - GET /api/ready  → 200 OK (when ready to serve)
-
-Backend:
-  - GET /health → 200 OK
-  - GET /ready  → 200 OK (DB connected)
-```
+All Phase VI features (Priorities, Tags, Search, Filter, Sort, Due Dates, Recurring Tasks, Reminders) are preserved and continue to function within the cloud-native architecture. See previous constitution version for detailed specifications.
 
 ---
 
 ## PART VIII: GOVERNANCE
 
-### 17. SUCCESS CRITERIA FOR PHASE IV
-
-**Mandatory Achievements:**
-
-| # | Criterion | Validation Method |
-|---|-----------|-------------------|
-| 1 | All services containerized | `docker images` shows all images |
-| 2 | Minikube cluster operational | `kubectl get nodes` returns Ready |
-| 3 | Helm charts complete | `helm lint` passes for all charts |
-| 4 | All pods running | `kubectl get pods` shows Running |
-| 5 | Ingress configured | Application accessible via minikube IP |
-| 6 | kubectl-ai operational | Natural language commands execute |
-| 7 | Kagent deployed | Agent pods running and monitoring |
-| 8 | Gordon integrated | AI-generated Dockerfiles in use |
-| 9 | Zero manual kubectl for deploys | All deployments via AI agents |
-| 10 | Documentation complete | README covers all setup steps |
-
-**Quality Gates:**
-- All containers pass security scan
-- Resource limits defined for all deployments
-- Health checks passing for all services
-- No hardcoded secrets in images or manifests
-- Helm charts follow best practices
-
----
-
-### 18. AMENDMENT PROCEDURE
+### 27. AMENDMENT PROCEDURE
 
 **Constitution Versioning:**
-- MAJOR: Architectural changes, principle removals
-- MINOR: New sections, expanded guidance
+- MAJOR: Architectural changes, new infrastructure components, deployment model changes
+- MINOR: New feature sections, expanded guidance
 - PATCH: Clarifications, typo fixes
 
 **Amendment Process:**
@@ -637,68 +608,340 @@ Backend:
 
 ---
 
-### 19. COMPLIANCE REVIEW
+### 28. COMPLIANCE REVIEW
 
 **Weekly Review Checklist:**
-- [ ] All deployments match Helm chart specifications
-- [ ] No manual cluster modifications outside GitOps
-- [ ] AI agent logs reviewed for anomalies
-- [ ] Resource utilization within defined limits
-- [ ] Security scan results clean
+- [ ] All services communicate via Dapr sidecars
+- [ ] Events published for all state changes
+- [ ] Graceful degradation tested
+- [ ] Observability endpoints functional
+- [ ] Secrets not hardcoded
+- [ ] Local Minikube setup mirrors production
 
 ---
 
-## APPENDIX A: COMMAND REFERENCE
+## PART IX: SUCCESS CRITERIA
 
-**Minikube Operations:**
-```bash
-minikube start          # Start cluster
-minikube stop           # Stop cluster
-minikube delete         # Delete cluster
-minikube dashboard      # Open K8s dashboard
-minikube tunnel         # Expose LoadBalancer services
+### 29. PHASE VII SUCCESS CRITERIA
+
+| # | Criterion | Validation Method |
+|---|-----------|-------------------|
+| 1 | All Dapr capabilities functional | Test pub/sub, state, invocation, bindings, secrets |
+| 2 | Local Minikube matches production | Deploy same Helm chart to both |
+| 3 | Circuit breakers working | Inject failure, observe graceful degradation |
+| 4 | Events flow through Kafka | Verify events in Redpanda console |
+| 5 | Secrets retrieved via Dapr | No plaintext secrets in code/configs |
+| 6 | Cron bindings trigger | Reminders checked every minute |
+| 7 | Observability complete | Metrics, logs, traces visible |
+| 8 | Horizontal scaling works | HPA scales on CPU/memory |
+
+---
+
+## PART X: PROJECT GOVERNANCE AI
+
+### 30. GOVERNANCE HIERARCHY
+
+**Document Hierarchy (Supreme to Implementation):**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    CONSTITUTION                              │
+│           (Supreme Authority - This Document)                │
+│    Defines: Principles, Architecture, Non-Negotiables       │
+└─────────────────────────────────┬───────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SPECIFICATIONS                            │
+│               (specs/###-feature/spec.md)                   │
+│    Defines: User Stories, Requirements, Success Criteria    │
+└─────────────────────────────────┬───────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│                         PLANS                                │
+│               (specs/###-feature/plan.md)                   │
+│    Defines: Technical Approach, Structure, Dependencies     │
+└─────────────────────────────────┬───────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│                         TASKS                                │
+│               (specs/###-feature/tasks.md)                  │
+│    Defines: Ordered Work Items, Parallel Opportunities      │
+└─────────────────────────────────┬───────────────────────────┘
+                                  │
+                                  ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    IMPLEMENTATION                            │
+│                   (Source Code Files)                       │
+│    Output: Working Software Matching Specifications         │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-**Helm Operations:**
-```bash
-helm install taskora ./helm/taskora           # Install
-helm upgrade taskora ./helm/taskora           # Upgrade
-helm rollback taskora 1                       # Rollback
-helm uninstall taskora                        # Uninstall
-helm lint ./helm/taskora                      # Validate
+**Hierarchy Rules:**
+1. Lower-level documents MUST NOT contradict higher-level documents
+2. Implementation MUST satisfy all tasks
+3. Tasks MUST trace to plan and specification
+4. Specifications MUST comply with constitution principles
+
+---
+
+### 31. UNDERSTANDING-FIRST PRINCIPLE
+
+**Non-Negotiable Rule:**
+> Before taking ANY action, the AI MUST fully understand the existing state by reading all relevant documents.
+
+**Understanding Protocol:**
+
+| Step | Action | Validation |
+|------|--------|------------|
+| 1 | Read Constitution | Identify applicable principles |
+| 2 | Read Feature Specification | Extract user stories and requirements |
+| 3 | Read Implementation Plan | Understand technical approach and structure |
+| 4 | Read Existing Tasks | Identify completed, in-progress, and pending work |
+| 5 | Read Related Source Code | Understand current implementation state |
+
+**Understanding Checkpoints:**
+- [ ] All governing documents have been read
+- [ ] Applicable principles have been identified
+- [ ] Current state is fully understood
+- [ ] Dependencies are mapped
+- [ ] Potential conflicts are identified
+
+**Violations:**
+- Creating tasks without reading specifications = VIOLATION
+- Implementing features without understanding plan = VIOLATION
+- Assuming document content without reading = VIOLATION
+
+---
+
+### 32. DEDUPLICATION ENFORCEMENT
+
+**Non-Negotiable Rule:**
+> No duplicate tasks, specifications, or implementations shall exist. Overlapping items MUST be merged.
+
+**Deduplication Protocol:**
+
+```
+BEFORE Creating Any Artifact:
+1. Search existing artifacts for similar content
+2. Compare functionality, not just names
+3. If overlap > 30%, MERGE instead of CREATE
+4. If exact duplicate, REJECT creation
 ```
 
-**kubectl-ai Examples:**
-```bash
-kubectl-ai "deploy taskora to the cluster"
-kubectl-ai "show pod status for backend"
-kubectl-ai "increase backend replicas to 5"
-kubectl-ai "show recent errors in logs"
+**Deduplication Checks:**
+
+| Artifact Type | Check Method | Merge Strategy |
+|---------------|--------------|----------------|
+| Tasks | Compare descriptions and affected files | Combine into single task with all requirements |
+| Specifications | Compare user stories and requirements | Consolidate overlapping stories |
+| Components | Compare functionality and interfaces | Single component with combined features |
+| Tests | Compare test scenarios | Unified test covering all scenarios |
+
+**Merge Template:**
+```markdown
+## Merged Task: [Combined Title]
+**Original Tasks:** T001, T015, T042 (merged due to overlap)
+**Combined Scope:** [All functionality from merged tasks]
+**Affected Files:** [Union of all files]
 ```
 
 ---
 
-## APPENDIX B: FILE STRUCTURE
+### 33. DEPENDENCY SEQUENCING
+
+**Non-Negotiable Rule:**
+> Tasks MUST be sequenced by dependencies. Blocked tasks MUST NOT execute before blockers complete.
+
+**Dependency Types:**
+
+| Type | Symbol | Description |
+|------|--------|-------------|
+| Hard Dependency | `→` | Task B cannot start until Task A completes |
+| Soft Dependency | `⟶` | Task B benefits from Task A but can proceed |
+| Parallel | `∥` | Tasks have no dependency, can run simultaneously |
+| Conflict | `✗` | Tasks modify same files, cannot run in parallel |
+
+**Sequencing Algorithm:**
 
 ```
-evolution-of-todos/
-├── .specify/                    # Spec-Kit configuration
-├── frontend/                    # Next.js application
-│   └── Dockerfile              # Generated by Gordon
-├── backend/                     # FastAPI application
-│   └── Dockerfile              # Generated by Gordon
-├── helm/                        # Helm charts
-│   └── taskora/                # Main application chart
-├── k8s/                         # Raw Kubernetes manifests (if needed)
-├── docker-compose.yml          # Local development
-├── docker-compose.prod.yml     # Production-like local
-└── README.md                   # Setup documentation
+1. Build dependency graph from task definitions
+2. Identify all hard dependencies
+3. Topological sort to determine execution order
+4. Group independent tasks for parallel execution
+5. Flag conflicting parallel tasks
+
+Execution Order:
+Phase 1 (Setup)      →  No dependencies
+Phase 2 (Foundation) →  Depends on Phase 1
+Phase 3+ (Features)  →  Depends on Phase 2, parallel within phase
+Phase N (Polish)     →  Depends on all feature phases
 ```
+
+**Phase Alignment (Per User Request):**
+
+| Phase | Name | Dependencies |
+|-------|------|--------------|
+| Phase A | Advanced Features | Foundation complete |
+| Phase B | Local Deployment | Phase A components ready |
+| Phase C | Cloud Deployment | Phase B validated locally |
+
+---
+
+### 34. GAP ANALYSIS PROTOCOL
+
+**Non-Negotiable Rule:**
+> If a required step, feature, or component is missing from documentation, a new task MUST be created with explicit justification.
+
+**Gap Detection Checklist:**
+
+- [ ] All user stories have corresponding tasks
+- [ ] All tasks have corresponding implementations
+- [ ] All implementations have corresponding tests (if required)
+- [ ] All dependencies are explicitly declared
+- [ ] All environment configurations are documented
+- [ ] All deployment steps are specified
+
+**Gap Creation Template:**
+```markdown
+## Gap Task: [Title]
+**Gap Type:** [Missing Feature | Missing Documentation | Missing Test | Missing Configuration]
+**Discovery Method:** [How the gap was identified]
+**Justification:** [Why this is required]
+**Specification Reference:** [Which requirement this fulfills]
+**Dependencies:** [What must exist before this gap is filled]
+**Priority:** [P1/P2/P3 based on blocking impact]
+```
+
+**Gap Categories:**
+
+| Category | Examples | Priority Default |
+|----------|----------|------------------|
+| Blocking | Missing DB schema for feature | P1 |
+| Functional | Missing validation for user input | P2 |
+| Quality | Missing error handling | P2 |
+| Documentation | Missing API docs | P3 |
+| Testing | Missing integration test | P3 |
+
+---
+
+### 35. PHASE ALIGNMENT RULES
+
+**Phase V Specific Rules (Production Cloud-Native Microservices):**
+
+Based on Phase V requirements (DOKS + Dapr + Kafka), the following alignment rules apply:
+
+**Phase V Architecture Compliance:**
+
+| Requirement | Validation | Status |
+|-------------|------------|--------|
+| DigitalOcean Kubernetes (DOKS) | Cluster provisioned, Helm charts deploy | ✅ COMPLETE |
+| Dapr for Microservices | Sidecars inject, pub/sub works | ✅ COMPLETE |
+| Kafka/Redpanda Events | Topics created, events flow | ✅ COMPLETE |
+| GitHub Actions CI/CD | Workflows trigger on push/PR | ✅ COMPLETE |
+| Local Development Parity | Docker Compose mirrors prod | ✅ COMPLETE |
+
+**Phase Cross-Reference Table:**
+
+| Phase | Key Deliverables | Constitution Section |
+|-------|------------------|---------------------|
+| Phase V | DOKS, Dapr, Kafka, CI/CD | Parts II-V |
+| Phase VI | Priority, Tags, Search, Filter, Sort, Due Dates, Recurring, Reminders | Part VII (Section 14-26) |
+| Phase VII | Full Dapr Capabilities, Minikube Parity, Observability | Parts II-V (enhanced) |
+
+**Task Alignment Validation:**
+
+Before marking any task complete:
+1. Verify task output matches specification
+2. Verify implementation follows plan structure
+3. Verify no constitution principles violated
+4. Verify no duplicate functionality introduced
+5. Document any deviations with justification
+
+---
+
+## PART XI: EXECUTION RULES
+
+### 36. AI AGENT OPERATING RULES
+
+**Before Any Execution:**
+```
+1. READ constitution (this document)
+2. READ feature specification
+3. READ implementation plan
+4. READ existing tasks
+5. IDENTIFY current state
+6. VALIDATE no conflicts
+7. PROCEED only if all checks pass
+```
+
+**During Execution:**
+```
+1. EXECUTE one task at a time (unless parallel-safe)
+2. VALIDATE output matches expectation
+3. UPDATE task status immediately
+4. LOG any deviations or issues
+5. STOP if blocking error encountered
+```
+
+**After Execution:**
+```
+1. VERIFY all acceptance criteria met
+2. UPDATE task status to complete
+3. DOCUMENT any gaps discovered
+4. CREATE follow-up tasks if needed
+5. REPORT summary to user
+```
+
+---
+
+## PART XII: KAFKA TOPIC ARCHITECTURE (PHASE V)
+
+### 37. KAFKA/REDPANDA TOPICS
+
+**Topic Naming Convention:** `{domain}-events`
+
+**Defined Topics:**
+
+| Topic | Partitions | Retention | Events |
+|-------|------------|-----------|--------|
+| `task-events` | 3 | 7 days | created, updated, deleted, completed, recurred, reminder |
+| `user-events` | 2 | 30 days | registered, logged_in, logged_out, profile_updated |
+| `chat-events` | 2 | 7 days | message_sent, response_received, conversation_started |
+| `system-events` | 1 | 1 day | health_check, deployment, error |
+
+**Event Schema (CloudEvents Format):**
+
+```json
+{
+  "specversion": "1.0",
+  "type": "task.created",
+  "source": "/api/tasks",
+  "id": "uuid-v4",
+  "time": "2026-02-04T12:00:00Z",
+  "datacontenttype": "application/json",
+  "data": {
+    "taskId": "123",
+    "title": "Example Task",
+    "userId": "456"
+  }
+}
+```
+
+**Consumer Groups:**
+
+| Group | Topics Subscribed | Purpose |
+|-------|-------------------|---------|
+| `taskora-analytics` | all | Metrics and reporting |
+| `taskora-notifications` | task-events, reminder-events | Push notifications |
+| `taskora-audit` | all | Compliance logging |
 
 ---
 
 ==================================================
-END OF CONSTITUTION — PHASE IV
+END OF CONSTITUTION — PHASE VII v5.1.0
 ==================================================
 
-*This constitution establishes Taskora as a production-grade, AI-operated cloud platform. All development, deployment, and operational activities MUST comply with this document.*
+*This constitution establishes Taskora as a cloud-native microservices platform with complete Dapr capabilities: Pub/Sub (Kafka), State Management (Redis), Service Invocation, Bindings (Cron), and Secrets Management. All development MUST comply with this document. The Project Governance AI principles ensure task deduplication, dependency sequencing, and gap analysis for all project actions.*

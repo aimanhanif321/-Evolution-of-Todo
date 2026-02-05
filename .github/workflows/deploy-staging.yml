@@ -1,0 +1,212 @@
+name: Deploy to Staging
+
+# Staging deployment workflow
+# Triggered on:
+# - PR merge to main (for preview before production)
+# - Manual trigger for testing specific versions
+#
+# Uses separate namespace (taskora-staging) with lighter resources
+# Staging environment is designed for:
+# - Integration testing before production
+# - Preview deployments for PRs
+# - Developer testing with production-like setup
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (e.g., sha-abc1234, pr-123, main)"
+        required: false
+        default: "main"
+
+env:
+  CLUSTER_NAME: taskora-cluster
+  NAMESPACE: taskora-staging
+  HELM_RELEASE: taskora-staging
+  REGISTRY: ghcr.io
+
+jobs:
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    # Only run for pushes to main or manual triggers (not PRs by default)
+    if: ${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'deploy-preview') }}
+    environment: staging
+    concurrency:
+      group: staging-deploy
+      cancel-in-progress: true  # Allow newer staging deploys to cancel older ones
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Configure kubectl
+        run: |
+          doctl kubernetes cluster kubeconfig save ${{ env.CLUSTER_NAME }}
+
+      - name: Verify cluster connection
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.13.0"
+
+      - name: Determine image tag
+        id: image-tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "tag=${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "tag=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create staging namespace
+        run: |
+          kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy to staging with Helm
+        run: |
+          helm upgrade --install ${{ env.HELM_RELEASE }} ./helm/taskora \
+            --namespace ${{ env.NAMESPACE }} \
+            -f ./helm/taskora/values-prod.yaml \
+            --set backend.image.repository=${{ env.REGISTRY }}/${{ github.repository }}/backend \
+            --set backend.image.tag=${{ steps.image-tag.outputs.tag }} \
+            --set frontend.image.repository=${{ env.REGISTRY }}/${{ github.repository }}/frontend \
+            --set frontend.image.tag=${{ steps.image-tag.outputs.tag }} \
+            --set backend.replicaCount=1 \
+            --set frontend.replicaCount=1 \
+            --set backend.resources.requests.memory=128Mi \
+            --set backend.resources.requests.cpu=50m \
+            --set backend.resources.limits.memory=256Mi \
+            --set backend.resources.limits.cpu=200m \
+            --set frontend.resources.requests.memory=64Mi \
+            --set frontend.resources.requests.cpu=25m \
+            --set frontend.resources.limits.memory=128Mi \
+            --set frontend.resources.limits.cpu=100m \
+            --set ingress.hosts[0].host=staging.taskora.app \
+            --wait \
+            --timeout 5m
+
+      - name: Verify staging deployment
+        run: |
+          echo "Checking staging deployment status..."
+          kubectl rollout status deployment/${{ env.HELM_RELEASE }}-backend -n ${{ env.NAMESPACE }} --timeout=3m
+          kubectl rollout status deployment/${{ env.HELM_RELEASE }}-frontend -n ${{ env.NAMESPACE }} --timeout=3m
+
+      - name: Get staging deployment info
+        run: |
+          echo "=== Staging Pods ==="
+          kubectl get pods -n ${{ env.NAMESPACE }} -l app.kubernetes.io/instance=${{ env.HELM_RELEASE }}
+          echo ""
+          echo "=== Staging Services ==="
+          kubectl get svc -n ${{ env.NAMESPACE }}
+          echo ""
+          echo "=== Staging Ingress ==="
+          kubectl get ingress -n ${{ env.NAMESPACE }}
+
+      - name: Comment on PR with staging URL
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `### Staging Deployment
+
+            **Environment:** staging
+            **Image Tag:** \`${{ steps.image-tag.outputs.tag }}\`
+            **Namespace:** \`${{ env.NAMESPACE }}\`
+
+            **Staging URL:** https://staging.taskora.app
+
+            _Deployment triggered by commit ${{ github.sha }}_`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      - name: Notify staging deployment success
+        if: success()
+        run: |
+          echo "::notice title=Staging Deployment Successful::Deployed ${{ steps.image-tag.outputs.tag }} to staging environment"
+
+      - name: Notify staging deployment failure
+        if: failure()
+        run: |
+          echo "::error title=Staging Deployment Failed::Failed to deploy ${{ steps.image-tag.outputs.tag }} to staging"
+
+  cleanup-pr-staging:
+    name: Cleanup PR Staging
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Configure kubectl
+        run: |
+          doctl kubernetes cluster kubeconfig save ${{ env.CLUSTER_NAME }}
+
+      - name: Cleanup staging resources
+        run: |
+          echo "PR closed, staging cleanup would happen here"
+          # Optionally cleanup PR-specific resources
+          # kubectl delete namespace taskora-staging-pr-${{ github.event.pull_request.number }} --ignore-not-found
+
+  # T037: Notifications for staging deployment
+  notify-staging:
+    name: Send Staging Notifications
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: always() && needs.deploy-staging.result != 'skipped'
+    steps:
+      - name: Determine deployment status
+        id: status
+        run: |
+          if [ "${{ needs.deploy-staging.result }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=#36a64f" >> $GITHUB_OUTPUT
+            echo "title=Staging Deployment Successful" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=#dc3545" >> $GITHUB_OUTPUT
+            echo "title=Staging Deployment Failed" >> $GITHUB_OUTPUT
+          fi
+
+      # Optional Slack notification for staging
+      - name: Send Slack notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"${{ steps.status.outputs.color }}\",
+                \"title\": \"${{ steps.status.outputs.title }}\",
+                \"title_link\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                \"fields\": [
+                  {\"title\": \"Environment\", \"value\": \"staging\", \"short\": true},
+                  {\"title\": \"Triggered by\", \"value\": \"${{ github.actor }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"$(echo ${{ github.sha }} | cut -c1-7)\", \"short\": true}
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"ts\": $(date +%s)
+              }]
+            }" $SLACK_WEBHOOK_URL || echo "Slack notification skipped"

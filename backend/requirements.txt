@@ -15,6 +15,14 @@ httpx==0.25.2
 passlib[bcrypt]==1.7.4
 bcrypt==4.0.1
 
+# Phase V: Dapr Microservices
+dapr>=1.13.0
+dapr-ext-grpc>=1.13.0
+dapr-ext-fastapi>=1.13.0
+
 # Phase III: AI Chatbot
 google-generativeai>=0.8.0
 cohere>=5.11.0  # v2 API with native tool calling support
+
+# Phase VI: Advanced Todo Features
+python-dateutil>=2.8.2  # For recurrence calculations (monthly, relative dates)

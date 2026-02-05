@@ -1,207 +1,242 @@
-# Taskora - Phase II
+# Taskora - Phase V: Cloud-Native Deployment
 
-A full-stack web application transforming the CLI-based todo application into a modern web application with user authentication, persistent storage, and enhanced UI/UX.
+A full-stack AI-powered todo application deployed on DigitalOcean Kubernetes (DOKS) with Dapr microservices and Kafka/Redpanda event streaming.
 
 ## Overview
 
-This project implements the Taskora application, featuring:
+Taskora is a production-ready todo application featuring:
 - User authentication with JWT tokens
-- Task management (CRUD operations)
-- Responsive UI with Next.js and Tailwind CSS
-- PostgreSQL database with proper user isolation
-- API-first architecture with FastAPI backend
+- AI-powered chatbot for task management
+- Event-driven architecture with Kafka/Redpanda
+- Dapr service mesh for resilience and observability
+- Kubernetes deployment with auto-scaling
+- CI/CD pipeline with GitHub Actions
 
 ## Tech Stack
 
-- **Frontend**: Next.js 16+, TypeScript, Tailwind CSS
-- **Backend**: Python 3.13+, FastAPI
-- **Database**: PostgreSQL (Neon Serverless)
-- **Authentication**: JWT with refresh tokens
-- **Styling**: Tailwind CSS
+| Component | Technology |
+|-----------|------------|
+| Frontend | Next.js 16+, TypeScript, Tailwind CSS |
+| Backend | Python 3.11+, FastAPI, SQLModel |
+| Database | PostgreSQL 15 (DigitalOcean Managed) |
+| Event Streaming | Redpanda (Kafka-compatible) |
+| Service Mesh | Dapr 1.13+ |
+| Container Orchestration | Kubernetes (DOKS) |
+| CI/CD | GitHub Actions |
+| Ingress | NGINX with cert-manager |
 
-## Prerequisites
+## Architecture
 
-- Node.js 18+ (for frontend development)
-- Python 3.13+ (for backend development)
-- pnpm package manager (recommended) or npm/yarn
-- PostgreSQL client tools (for database operations)
-- Git for version control
+```
+                                    ┌─────────────────┐
+                                    │   Internet      │
+                                    └────────┬────────┘
+                                             │
+                                    ┌────────▼────────┐
+                                    │ DO Load Balancer│
+                                    │  + TLS (Let's   │
+                                    │    Encrypt)     │
+                                    └────────┬────────┘
+                                             │
+                          ┌──────────────────┴──────────────────┐
+                          │         NGINX Ingress               │
+                          └──────────────────┬──────────────────┘
+                                             │
+              ┌──────────────────────────────┼──────────────────────────────┐
+              │                              │                              │
+     ┌────────▼────────┐           ┌────────▼────────┐           ┌─────────▼─────────┐
+     │    Frontend     │           │    Backend      │           │    Redpanda       │
+     │   (Next.js)     │◄─────────►│   (FastAPI)     │◄─────────►│   (Kafka)         │
+     │   + Dapr        │  Dapr     │   + Dapr        │  Pub/Sub  │                   │
+     └─────────────────┘  Invoke   └────────┬────────┘           └───────────────────┘
+                                            │
+                                   ┌────────▼────────┐
+                                   │  PostgreSQL     │
+                                   │  (DO Managed)   │
+                                   └─────────────────┘
+```
 
-## Setup Instructions
+## Quick Start
+
+### Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/taskora/evolution-of-todos.git
+cd evolution-of-todos
+
+# Start with Docker Compose (standard)
+docker-compose up
+
+# Start with Dapr (for event streaming)
+docker-compose -f docker-compose.yml -f docker-compose.dapr.yml up
+
+# Access the application
+open http://localhost:3000
+```
+
+### Production Deployment
+
+See [Deployment Guide](#production-deployment-guide) below.
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js 18+ (frontend)
+- Python 3.11+ (backend)
+- Docker and Docker Compose
+- kubectl and helm (for Kubernetes)
+- doctl CLI (for DigitalOcean)
 
 ### Backend Setup
 
 ```bash
-# Navigate to backend directory
 cd backend
-
-# Create virtual environment
 python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
-# Install in development mode
-pip install -e .
+# Copy environment template
+cp .env.example .env
+# Edit .env with your values
+
+# Run locally
+uvicorn src.main:app --reload --port 8000
 ```
 
 ### Frontend Setup
 
 ```bash
-# Navigate to frontend directory
 cd frontend
-
-# Install dependencies
-pnpm install
-# Or if using npm:
 npm install
-```
 
-## Environment Variables
+# Copy environment template
+cp .env.example .env.local
+# Edit .env.local with your values
 
-### Backend (.env)
-
-Create a `.env` file in the `backend` directory:
-
-```env
-# Database
-DATABASE_URL="postgresql://username:password@localhost:5432/todos_db"
-
-# JWT Configuration
-JWT_SECRET="your-super-secret-jwt-key"
-JWT_ALGORITHM="HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-REFRESH_TOKEN_EXPIRE_DAYS=7
-
-# Application
-APP_ENV="development"
-DEBUG=True
-```
-
-### Frontend (.env.local)
-
-Create a `.env.local` file in the `frontend` directory:
-
-```env
-# Backend API URL
-NEXT_PUBLIC_API_URL="http://localhost:8000"
-
-# Auth Configuration
-NEXT_PUBLIC_JWT_SECRET="your-super-secret-jwt-key"
-```
-
-## Database Setup
-
-```bash
-# From the backend directory
-cd backend
-
-# Run database migrations
-alembic upgrade head
-```
-
-## Running the Application
-
-### Start the Backend
-
-```bash
-# From the backend directory
-cd backend
-
-# Activate virtual environment
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Run the backend server
-uvicorn src.main:app --reload --port 8000
-```
-
-### Start the Frontend
-
-```bash
-# From the frontend directory
-cd frontend
-
-# Run the development server
-pnpm dev
-# Or if using npm:
+# Run locally
 npm run dev
 ```
 
-### Access the Application
+## Production Deployment Guide
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- Backend API Documentation: http://localhost:8000/docs
+### 1. Create DOKS Cluster
 
-## Key Endpoints
-
-### Authentication Endpoints
-- `POST /auth/register` - Register a new user
-- `POST /auth/login` - Login and get tokens
-- `POST /auth/refresh` - Refresh access token
-- `POST /auth/logout` - Logout and invalidate refresh token
-
-### Task Endpoints
-- `GET /tasks` - Get all user tasks
-- `POST /tasks` - Create a new task
-- `GET /tasks/{task_id}` - Get a specific task
-- `PUT /tasks/{task_id}` - Update a task
-- `DELETE /tasks/{task_id}` - Delete a task
-
-## Development Commands
-
-### Backend Commands
 ```bash
-# Run backend tests
-pytest
+# Using the provided script
+./scripts/create-cluster.sh
 
-# Run backend with auto-reload
-uvicorn src.main:app --reload
-
-# Run linter
-flake8 src/
-
-# Run type checker
-mypy src/
+# Or manually with doctl
+doctl kubernetes cluster create taskora-cluster \
+  --region nyc1 \
+  --node-pool "name=worker-pool;size=s-2vcpu-4gb;count=3" \
+  --version 1.28.2-do.0
 ```
 
-### Frontend Commands
+### 2. Install Dapr
+
 ```bash
-# Run frontend development server
-pnpm dev
-
-# Run frontend tests
-pnpm test
-
-# Build for production
-pnpm build
-
-# Run linter
-pnpm lint
-
-# Run type checker
-pnpm type-check
+dapr init -k --wait
+dapr status -k
 ```
 
-## Architecture
+### 3. Create Secrets
 
-This project follows an API-first architecture with clear separation between frontend and backend:
+```bash
+kubectl create namespace taskora
 
-- **Frontend**: Next.js 16+ application with App Router for all UI rendering and user interactions
-- **Backend**: FastAPI application handling API endpoints, business logic, authentication, and database operations
-- **Database**: PostgreSQL ensuring data persistence and user isolation
+kubectl create secret generic taskora-secrets -n taskora \
+  --from-literal=DATABASE_URL='postgresql://user:pass@host:25060/db?sslmode=require' \
+  --from-literal=COHERE_API_KEY='your-cohere-key' \
+  --from-literal=GEMINI_API_KEY='your-gemini-key' \
+  --from-literal=BETTER_AUTH_SECRET='your-auth-secret'
+```
+
+### 4. Apply Dapr Components
+
+```bash
+kubectl apply -f dapr/components/ -n taskora
+```
+
+### 5. Deploy with Helm
+
+```bash
+helm upgrade --install taskora ./helm/taskora \
+  -n taskora \
+  -f ./helm/taskora/values-prod.yaml \
+  --set ingress.hosts[0].host=taskora.example.com
+```
+
+### 6. Configure DNS
+
+Point your domain to the DigitalOcean Load Balancer IP:
+
+```bash
+kubectl get svc -n ingress-nginx
+```
+
+## CI/CD Pipeline
+
+The GitHub Actions pipeline automatically:
+
+1. **On PR**: Runs linting and tests
+2. **On push to main**:
+   - Builds Docker images
+   - Pushes to GitHub Container Registry
+   - Deploys to production via Helm
+
+### Required GitHub Secrets
+
+| Secret | Description |
+|--------|-------------|
+| `DIGITALOCEAN_ACCESS_TOKEN` | DO API token for cluster access |
+
+See [docs/github-secrets.md](docs/github-secrets.md) for setup instructions.
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/login` - Login and get tokens
+- `POST /api/auth/refresh` - Refresh access token
+
+### Tasks
+- `GET /api/tasks` - List all tasks
+- `POST /api/tasks` - Create task
+- `PUT /api/tasks/{id}` - Update task
+- `DELETE /api/tasks/{id}` - Delete task
+- `PATCH /api/tasks/{id}/complete` - Toggle completion
+
+### Chat (AI)
+- `POST /api/chat` - Send message to AI chatbot
+- `GET /api/chat/history` - Get conversation history
+
+### Health
+- `GET /health` - Liveness probe
+- `GET /ready` - Readiness probe
+- `GET /metrics` - Application metrics
+
+## Event Topics
+
+| Topic | Events | Retention |
+|-------|--------|-----------|
+| `task-events` | created, updated, deleted | 7 days |
+| `user-events` | login, logout, registered | 30 days |
+| `chat-events` | message_sent, response_received | 14 days |
+
+## Documentation
+
+- [Architecture Overview](docs/architecture.md)
+- [Dapr Debugging Guide](docs/dapr-debugging.md)
+- [GitHub Secrets Setup](docs/github-secrets.md)
+- [Troubleshooting](docs/troubleshooting.md)
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 

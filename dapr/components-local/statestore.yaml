@@ -1,0 +1,16 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: taskora-statestore
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+    - name: connectionString
+      value: "host=database user=taskora password=taskora-dev-password port=5432 dbname=taskora sslmode=disable"
+    - name: tableName
+      value: "dapr_state"
+    - name: keyPrefix
+      value: "name"
+    - name: actorStateStore
+      value: "false"

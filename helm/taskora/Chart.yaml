@@ -1,9 +1,9 @@
 apiVersion: v2
 name: taskora
-description: Cloud-Native AI Todo Platform - Taskora Helm Chart
+description: Cloud-Native AI Todo Platform with Dapr Microservices - Taskora Helm Chart
 type: application
-version: 1.0.0
-appVersion: "4.0.0"
+version: 2.0.0
+appVersion: "5.0.0"
 
 keywords:
   - todo
@@ -12,6 +12,10 @@ keywords:
   - cloud-native
   - fastapi
   - nextjs
+  - dapr
+  - microservices
+  - kafka
+  - digitalocean
 
 maintainers:
   - name: Taskora Team
@@ -21,4 +25,15 @@ home: https://github.com/taskora/evolution-of-todos
 sources:
   - https://github.com/taskora/evolution-of-todos
 
+# Note: Dapr and cert-manager are installed separately as cluster-level components
+# Dapr: dapr init -k
+# cert-manager: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.0/cert-manager.yaml
+
+# Redpanda is deployed as a StatefulSet within this chart (see templates/redpanda.yaml)
+# For production clusters with high availability, consider using the official Redpanda Helm chart:
+# helm repo add redpanda https://charts.redpanda.com
 dependencies: []
+
+annotations:
+  category: AI/Productivity
+  dapr.io/enabled: "true"

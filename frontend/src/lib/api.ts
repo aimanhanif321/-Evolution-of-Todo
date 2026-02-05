@@ -117,18 +117,24 @@ class APIClient {
     const config: RequestInit = {
       method,
       headers,
-      // ✅ send cookies / auth credentials for CORS
-      credentials: "include",
+      // Note: Using Authorization header instead of cookies
+      // credentials: "include" can cause issues with some CORS + 401 scenarios
     };
 
     if (body) config.body = JSON.stringify(body);
 
     let response: Response;
+    const fullUrl = `${API_URL}${endpoint}`;
+    console.log(`[API] ${method} ${fullUrl}`, { hasToken: !!finalToken });
+
     try {
-      response = await fetch(`${API_URL}${endpoint}`, config);
+      response = await fetch(fullUrl, config);
+      console.log(`[API] Response: ${response.status} ${response.statusText}`);
     } catch (networkError) {
       // Network error (backend unreachable, CORS blocked, etc.)
-      console.error("Network error:", networkError);
+      console.error("[API] Network error:", networkError);
+      console.error("[API] Full URL was:", fullUrl);
+      console.error("[API] Config was:", JSON.stringify(config, null, 2));
       throw new Error(
         `Unable to connect to server. Please check if the backend is running at ${API_URL}`
       );

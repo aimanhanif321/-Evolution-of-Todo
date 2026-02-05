@@ -142,6 +142,42 @@ secrets:
   # betterAuthSecret: ""
   # geminiApiKey: ""
 
+# Redis configuration (for Dapr state store caching)
+redis:
+  enabled: false
+
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 6379
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+  # Enable password authentication (optional)
+  password: false
+  # existingSecret: redis-secret
+  # passwordKey: redis-password
+
+  # Persistence configuration (optional)
+  persistence:
+    enabled: false
+    storageClass: ""
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  nodeSelector: {}
+  tolerations: []
+
 # Kagent configuration (optional)
 kagent:
   enabled: false

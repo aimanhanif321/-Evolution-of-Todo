@@ -1,0 +1,111 @@
+version: '3.8'
+
+# Dapr overlay for local development with event streaming
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.dapr.yml up
+
+services:
+  # Redpanda - Kafka-compatible event streaming (low resource usage)
+  redpanda:
+    image: redpandadata/redpanda:v23.3.5
+    container_name: taskora-redpanda
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --memory=512M
+      - --reserve-memory=0M
+      - --overprovisioned
+      - --node-id=0
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:9092
+      - --pandaproxy-addr=0.0.0.0:8082
+      - --advertise-pandaproxy-addr=redpanda:8082
+    ports:
+      - "9092:9092"
+      - "8082:8082"
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 512M
+
+  # Redpanda Console - Web UI for topic management
+  redpanda-console:
+    image: redpandadata/console:v2.3.8
+    container_name: taskora-redpanda-console
+    environment:
+      KAFKA_BROKERS: redpanda:9092
+    ports:
+      - "8080:8080"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
+
+  # Dapr sidecar for backend
+  backend-dapr:
+    image: daprio/daprd:1.13.0
+    container_name: taskora-backend-dapr
+    command:
+      - ./daprd
+      - --app-id=taskora-backend
+      - --app-port=8000
+      - --dapr-http-port=3500
+      - --dapr-grpc-port=50001
+      - --resources-path=/components
+      - --log-level=info
+    volumes:
+      - ./dapr/components-local:/components:ro
+    network_mode: service:backend
+    depends_on:
+      - backend
+      - redpanda
+
+  # Dapr sidecar for frontend (optional, for service invocation)
+  frontend-dapr:
+    image: daprio/daprd:1.13.0
+    container_name: taskora-frontend-dapr
+    command:
+      - ./daprd
+      - --app-id=taskora-frontend
+      - --app-port=3000
+      - --dapr-http-port=3501
+      - --dapr-grpc-port=50002
+      - --resources-path=/components
+      - --log-level=info
+    volumes:
+      - ./dapr/components-local:/components:ro
+    network_mode: service:frontend
+    depends_on:
+      - frontend
+      - redpanda
+
+  # Dapr placement service (for actors, optional)
+  placement:
+    image: daprio/dapr:1.13.0
+    container_name: taskora-dapr-placement
+    command: ["./placement", "-port", "50006"]
+    ports:
+      - "50006:50006"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+volumes:
+  redpanda_data:

@@ -1,0 +1,117 @@
+# Local Kafka Topic Definitions for Development
+#
+# These topics are auto-created by Redpanda when first used.
+# This file documents the expected topics for local development.
+#
+# Topics match production configuration with reduced retention.
+
+---
+# Task Events Topic
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-task-events
+  annotations:
+    description: "Task lifecycle events (created, updated, deleted)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda:9092"
+    - name: consumerGroup
+      value: "taskora-task-consumers-local"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "task-events"
+    - name: disableTls
+      value: "true"
+---
+# User Events Topic
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-user-events
+  annotations:
+    description: "User activity events (login, logout, registered)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda:9092"
+    - name: consumerGroup
+      value: "taskora-user-consumers-local"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "user-events"
+    - name: disableTls
+      value: "true"
+---
+# Chat Events Topic
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-chat-events
+  annotations:
+    description: "Chat conversation events (message_sent, response_received)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda:9092"
+    - name: consumerGroup
+      value: "taskora-chat-consumers-local"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "chat-events"
+    - name: disableTls
+      value: "true"
+---
+# Reminder Events Topic
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-reminder-events
+  annotations:
+    description: "Task reminder events (reminder triggered)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda:9092"
+    - name: consumerGroup
+      value: "taskora-reminder-consumers-local"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "reminder-events"
+    - name: disableTls
+      value: "true"
+---
+# System Events Topic
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-system-events
+  annotations:
+    description: "System events (deployments, maintenance, alerts)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda:9092"
+    - name: consumerGroup
+      value: "taskora-system-consumers-local"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "system-events"
+    - name: disableTls
+      value: "true"

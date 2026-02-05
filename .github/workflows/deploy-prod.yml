@@ -1,0 +1,258 @@
+name: Deploy to Production
+
+# Triggered automatically after successful build on main branch
+# Can also be manually triggered with a specific image tag
+#
+# Prerequisites:
+# - DIGITALOCEAN_ACCESS_TOKEN secret configured
+# - DOKS cluster 'taskora-cluster' exists
+# - Helm charts in ./helm/taskora/ directory
+
+on:
+  workflow_run:
+    workflows: ["Build and Push Docker Images"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Image tag to deploy (e.g., sha-abc1234, v1.0.0, latest)"
+        required: false
+        default: "main"
+      skip_verification:
+        description: "Skip deployment verification steps"
+        type: boolean
+        required: false
+        default: false
+
+env:
+  CLUSTER_NAME: taskora-cluster
+  NAMESPACE: taskora
+  HELM_RELEASE: taskora
+  REGISTRY: ghcr.io
+
+jobs:
+  deploy:
+    name: Deploy to DOKS
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    environment: production
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      # T030: Install doctl
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      # T031: Configure kubectl
+      - name: Configure kubectl
+        run: |
+          doctl kubernetes cluster kubeconfig save ${{ env.CLUSTER_NAME }}
+
+      - name: Verify cluster connection
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      # T032: Helm deployment
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.13.0"
+
+      - name: Determine image tag
+        id: image-tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "tag=${{ github.event.inputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=sha-$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install ${{ env.HELM_RELEASE }} ./helm/taskora \
+            --namespace ${{ env.NAMESPACE }} \
+            --create-namespace \
+            -f ./helm/taskora/values-prod.yaml \
+            --set backend.image.repository=${{ env.REGISTRY }}/${{ github.repository }}/backend \
+            --set backend.image.tag=${{ steps.image-tag.outputs.tag }} \
+            --set frontend.image.repository=${{ env.REGISTRY }}/${{ github.repository }}/frontend \
+            --set frontend.image.tag=${{ steps.image-tag.outputs.tag }} \
+            --wait \
+            --timeout 10m
+
+      - name: Verify deployment
+        if: ${{ github.event.inputs.skip_verification != 'true' }}
+        run: |
+          echo "Checking deployment status..."
+          kubectl rollout status deployment/${{ env.HELM_RELEASE }}-backend -n ${{ env.NAMESPACE }} --timeout=5m
+          kubectl rollout status deployment/${{ env.HELM_RELEASE }}-frontend -n ${{ env.NAMESPACE }} --timeout=5m
+
+          echo "Verifying health endpoints..."
+          BACKEND_POD=$(kubectl get pods -n ${{ env.NAMESPACE }} -l app.kubernetes.io/name=taskora-backend -o jsonpath='{.items[0].metadata.name}')
+          kubectl exec -n ${{ env.NAMESPACE }} $BACKEND_POD -- curl -sf http://localhost:8000/health || echo "Warning: Health check failed"
+
+      - name: Get deployment info
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -n ${{ env.NAMESPACE }} -l app.kubernetes.io/instance=${{ env.HELM_RELEASE }}
+          echo ""
+          echo "=== Services ==="
+          kubectl get svc -n ${{ env.NAMESPACE }}
+          echo ""
+          echo "=== Ingress ==="
+          kubectl get ingress -n ${{ env.NAMESPACE }}
+
+      # T036: Deployment status notification
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "::notice title=Deployment Successful::Deployed ${{ steps.image-tag.outputs.tag }} to production"
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "::error title=Deployment Failed::Failed to deploy ${{ steps.image-tag.outputs.tag }} to production"
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: failure()
+    environment: production
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Configure kubectl
+        run: |
+          doctl kubernetes cluster kubeconfig save ${{ env.CLUSTER_NAME }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.13.0"
+
+      - name: Rollback to previous release
+        run: |
+          echo "Rolling back to previous release..."
+          helm rollback ${{ env.HELM_RELEASE }} -n ${{ env.NAMESPACE }} --wait --timeout 5m
+
+      - name: Notify rollback
+        run: |
+          echo "::warning title=Rollback Executed::Deployment failed, rolled back to previous release"
+
+  # T037: Comprehensive notifications for deploy success/failure
+  notify:
+    name: Send Deployment Notifications
+    runs-on: ubuntu-latest
+    needs: [deploy]
+    if: always()
+    steps:
+      - name: Determine deployment status
+        id: status
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "color=#36a64f" >> $GITHUB_OUTPUT
+            echo "emoji=:white_check_mark:" >> $GITHUB_OUTPUT
+            echo "title=Production Deployment Successful" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "color=#dc3545" >> $GITHUB_OUTPUT
+            echo "emoji=:x:" >> $GITHUB_OUTPUT
+            echo "title=Production Deployment Failed" >> $GITHUB_OUTPUT
+          fi
+
+      # GitHub Actions native notification (always runs)
+      - name: Create GitHub deployment status
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.status.outputs.status }}';
+            const isSuccess = status === 'success';
+
+            // Create a deployment status annotation
+            if (isSuccess) {
+              core.notice('Production deployment completed successfully');
+            } else {
+              core.error('Production deployment failed - automatic rollback triggered');
+            }
+
+      # Optional Slack webhook notification
+      - name: Send Slack notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"${{ steps.status.outputs.color }}\",
+                \"title\": \"${{ steps.status.outputs.title }}\",
+                \"title_link\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                \"fields\": [
+                  {\"title\": \"Environment\", \"value\": \"production\", \"short\": true},
+                  {\"title\": \"Image Tag\", \"value\": \"sha-$(echo ${{ github.sha }} | cut -c1-7)\", \"short\": true},
+                  {\"title\": \"Triggered by\", \"value\": \"${{ github.actor }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"<${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}|$(echo ${{ github.sha }} | cut -c1-7)>\", \"short\": true}
+                ],
+                \"footer\": \"GitHub Actions | ${{ github.repository }}\",
+                \"ts\": $(date +%s)
+              }]
+            }" $SLACK_WEBHOOK_URL || echo "Slack notification failed (non-blocking)"
+
+      # Optional Discord webhook notification
+      - name: Send Discord notification
+        if: env.DISCORD_WEBHOOK_URL != ''
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          STATUS="${{ steps.status.outputs.status }}"
+          if [ "$STATUS" == "success" ]; then
+            DESCRIPTION="Deployment to production completed successfully"
+          else
+            DESCRIPTION="Deployment to production failed - rollback triggered"
+          fi
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"embeds\": [{
+                \"title\": \"${{ steps.status.outputs.title }}\",
+                \"description\": \"$DESCRIPTION\",
+                \"color\": $(printf '%d' 0x${{{ steps.status.outputs.color }}#\#}),
+                \"fields\": [
+                  {\"name\": \"Environment\", \"value\": \"production\", \"inline\": true},
+                  {\"name\": \"Actor\", \"value\": \"${{ github.actor }}\", \"inline\": true},
+                  {\"name\": \"Commit\", \"value\": \"$(echo ${{ github.sha }} | cut -c1-7)\", \"inline\": true}
+                ],
+                \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"
+              }]
+            }" $DISCORD_WEBHOOK_URL || echo "Discord notification failed (non-blocking)"
+
+      # Optional generic webhook notification (for custom integrations)
+      - name: Send generic webhook notification
+        if: env.DEPLOY_WEBHOOK_URL != ''
+        env:
+          DEPLOY_WEBHOOK_URL: ${{ secrets.DEPLOY_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"event\": \"deployment\",
+              \"status\": \"${{ steps.status.outputs.status }}\",
+              \"environment\": \"production\",
+              \"repository\": \"${{ github.repository }}\",
+              \"commit_sha\": \"${{ github.sha }}\",
+              \"actor\": \"${{ github.actor }}\",
+              \"run_id\": \"${{ github.run_id }}\",
+              \"run_url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+              \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
+            }" $DEPLOY_WEBHOOK_URL || echo "Webhook notification failed (non-blocking)"

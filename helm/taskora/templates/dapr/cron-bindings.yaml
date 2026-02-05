@@ -1,0 +1,46 @@
+{{- if .Values.dapr }}
+{{- if .Values.dapr.enabled }}
+---
+# Dapr Cron Binding: Reminder Check
+# Triggers POST /api/reminders/check every minute to process due reminders
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ include "taskora.fullname" . }}-reminder-cron
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "taskora.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dapr-cron
+spec:
+  type: bindings.cron
+  version: v1
+  metadata:
+    - name: schedule
+      value: {{ .Values.dapr.cron.reminderSchedule | default "@every 1m" | quote }}
+    - name: route
+      value: "/api/reminders/check"
+  scopes:
+    - {{ .Values.backend.dapr.appId | default "taskora-backend" }}
+---
+# Dapr Cron Binding: Recurrence Check
+# Triggers POST /api/recurrence/check every minute to generate recurring task instances
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: {{ include "taskora.fullname" . }}-recurrence-cron
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "taskora.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dapr-cron
+spec:
+  type: bindings.cron
+  version: v1
+  metadata:
+    - name: schedule
+      value: {{ .Values.dapr.cron.recurrenceSchedule | default "@every 1m" | quote }}
+    - name: route
+      value: "/api/recurrence/check"
+  scopes:
+    - {{ .Values.backend.dapr.appId | default "taskora-backend" }}
+{{- end }}
+{{- end }}

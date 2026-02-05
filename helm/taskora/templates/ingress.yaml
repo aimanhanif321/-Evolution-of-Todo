@@ -5,24 +5,37 @@ metadata:
   name: {{ include "taskora.fullname" . }}
   labels:
     {{- include "taskora.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
   annotations:
+    {{- if .Values.certManager }}
+    {{- if .Values.certManager.enabled }}
+    cert-manager.io/cluster-issuer: {{ .Values.certManager.issuerName | default "letsencrypt-prod" | quote }}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.ingress.annotations }}
     {{- toYaml . | nindent 4 }}
-  {{- end }}
+    {{- end }}
 spec:
   {{- if .Values.ingress.className }}
   ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
+  {{- if .Values.ingress.tls }}
   {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
         - {{ .Values.ingress.host }}
-      secretName: {{ .Values.ingress.tls.secretName }}
+        {{- if .Values.ingress.additionalHosts }}
+        {{- range .Values.ingress.additionalHosts }}
+        - {{ . }}
+        {{- end }}
+        {{- end }}
+      secretName: {{ .Values.ingress.tls.secretName | default (printf "%s-tls" (include "taskora.fullname" .)) }}
+  {{- end }}
   {{- end }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:
         paths:
+          # Backend API routes
           - path: /api
             pathType: Prefix
             backend:
@@ -30,6 +43,29 @@ spec:
                 name: {{ include "taskora.fullname" . }}-backend
                 port:
                   number: {{ .Values.backend.service.port }}
+          # Health and readiness endpoints (backend)
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: {{ include "taskora.fullname" . }}-backend
+                port:
+                  number: {{ .Values.backend.service.port }}
+          - path: /ready
+            pathType: Exact
+            backend:
+              service:
+                name: {{ include "taskora.fullname" . }}-backend
+                port:
+                  number: {{ .Values.backend.service.port }}
+          - path: /metrics
+            pathType: Exact
+            backend:
+              service:
+                name: {{ include "taskora.fullname" . }}-backend
+                port:
+                  number: {{ .Values.backend.service.port }}
+          # Frontend (catch-all)
           - path: /
             pathType: Prefix
             backend:

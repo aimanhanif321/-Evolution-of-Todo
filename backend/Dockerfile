@@ -21,7 +21,17 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Stage 2: Production stage
 FROM python:3.11-slim AS runner
 
+# OCI labels for container registry
+LABEL org.opencontainers.image.source="https://github.com/taskora/evolution-of-todos"
+LABEL org.opencontainers.image.description="Taskora Backend - FastAPI AI Todo API"
+LABEL org.opencontainers.image.licenses="MIT"
+
 WORKDIR /app
+
+# Python production settings
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONFAULTHANDLER=1
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y --no-install-recommends \

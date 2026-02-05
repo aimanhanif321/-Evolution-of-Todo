@@ -1,0 +1,44 @@
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: taskora-resiliency
+  namespace: taskora
+spec:
+  policies:
+    retries:
+      defaultRetry:
+        policy: constant
+        duration: 1s
+        maxRetries: 3
+      pubsubRetry:
+        policy: exponential
+        maxInterval: 10s
+        maxRetries: 5
+    timeouts:
+      defaultTimeout: 30s
+      pubsubTimeout: 60s
+    circuitBreakers:
+      defaultCB:
+        maxRequests: 3
+        timeout: 30s
+        trip: consecutiveFailures > 5
+      pubsubCB:
+        maxRequests: 5
+        timeout: 60s
+        trip: consecutiveFailures > 10
+  targets:
+    apps:
+      taskora-backend:
+        retry: defaultRetry
+        timeout: defaultTimeout
+        circuitBreaker: defaultCB
+      taskora-frontend:
+        retry: defaultRetry
+        timeout: defaultTimeout
+        circuitBreaker: defaultCB
+    components:
+      taskora-pubsub:
+        outbound:
+          retry: pubsubRetry
+          timeout: pubsubTimeout
+          circuitBreaker: pubsubCB

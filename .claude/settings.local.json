@@ -23,7 +23,26 @@
       "Bash(kubectl get:*)",
       "Bash(docker-compose up:*)",
       "Bash(docker-compose ps:*)",
-      "Bash(docker logs:*)"
+      "Bash(docker logs:*)",
+      "Bash(powershell -ExecutionPolicy Bypass -File .specify/scripts/powershell/check-prerequisites.ps1 -Json -RequireTasks -IncludeTasks)",
+      "Bash(powershell:*)",
+      "Bash(npm run lint)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(curl:*)",
+      "Bash(docker volume rm:*)",
+      "Bash(timeout:*)",
+      "Bash(docker info:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker container prune:*)",
+      "Bash(docker build:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec taskora-backend python -c \"\nfrom sqlalchemy import create_engine, text\nimport os\n\ndb_url = os.getenv\\(''DATABASE_URL''\\)\nengine = create_engine\\(db_url\\)\n\nwith engine.begin\\(\\) as conn:\n    # Update alembic version to mark migration as completed\n    conn.execute\\(text\\(''''''\n        UPDATE alembic_version SET version_num = ''002_phase_vi_features''\n        WHERE version_num = ''001_add_chat_tables''\n    ''''''\\)\\)\n    \n    # Check current version\n    result = conn.execute\\(text\\(''SELECT version_num FROM alembic_version''\\)\\)\n    version = result.scalar\\(\\)\n    print\\(f''Current alembic version: {version}''\\)\n\")",
+      "Bash(docker restart:*)",
+      "Bash(docker exec:*)"
     ]
   }
 }
