@@ -1,47 +1,106 @@
-# Production environment overrides
+# Production environment overrides - Phase V (DOKS)
 global:
   environment: production
 
-# Production replicas
+# DigitalOcean Kubernetes cluster: 3x s-2vcpu-4gb nodes
+# Total cluster: 6 vCPU, 12GB RAM
+
+# Frontend - Next.js
 frontend:
-  replicaCount: 3
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  dapr:
+    enabled: true
+    appId: "taskora-frontend"
+    appPort: 3000
+
+# Backend - FastAPI
+backend:
+  replicaCount: 2
   resources:
     requests:
       cpu: 200m
       memory: 256Mi
     limits:
-      cpu: 1000m
-      memory: 1Gi
-
-backend:
-  replicaCount: 5
-  resources:
-    requests:
       cpu: 500m
       memory: 512Mi
-    limits:
-      cpu: 2000m
-      memory: 2Gi
+  dapr:
+    enabled: true
+    appId: "taskora-backend"
+    appPort: 8000
 
+# Database - DigitalOcean Managed PostgreSQL (external)
 database:
-  persistence:
-    size: 50Gi
-    storageClass: fast-ssd
+  external: true
+  # Connection via Kubernetes Secret "taskora-secrets" key "DATABASE_URL"
+
+# Redpanda - Kafka-compatible event broker
+redpanda:
+  enabled: true
   resources:
     requests:
       cpu: 500m
       memory: 1Gi
     limits:
-      cpu: 2000m
-      memory: 4Gi
+      cpu: 1000m
+      memory: 2Gi
+  storage:
+    size: 10Gi
 
 # Production config
 config:
   appEnv: "production"
   logLevel: "warn"
 
-# Enable TLS in production
+# Dapr Configuration
+dapr:
+  enabled: true
+  dashboard:
+    enabled: true
+    ingress:
+      enabled: false  # Enable with caution - internal access only recommended
+  # Cron binding schedules for automated tasks
+  cron:
+    reminderSchedule: "@every 1m"    # Check for due reminders
+    recurrenceSchedule: "@every 1m"  # Generate recurring task instances
+
+# Redis - for Dapr state store caching
+redis:
+  enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  persistence:
+    enabled: true
+    size: 1Gi
+
+# Ingress with cert-manager
 ingress:
+  enabled: true
+  className: nginx
+  host: taskora.example.com
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
   tls:
     enabled: true
     secretName: taskora-tls
+
+# cert-manager configuration
+certManager:
+  enabled: true
+  issuerName: letsencrypt-prod
+  acmeServer: "https://acme-v02.api.letsencrypt.org/directory"
+  email: "admin@example.com"

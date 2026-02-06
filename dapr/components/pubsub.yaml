@@ -1,0 +1,19 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: taskora-pubsub
+  namespace: taskora
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda.taskora.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "taskora-consumers"
+    - name: authType
+      value: "none"
+    - name: initialOffset
+      value: "oldest"
+    - name: maxMessageBytes
+      value: "1048576"

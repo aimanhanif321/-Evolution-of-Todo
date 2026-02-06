@@ -2,13 +2,14 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useSSEContext } from '@/context/SSEContext';
 import APIClient from '@/lib/api';
 import TaskCard from './TaskCard';
 import TaskForm from './TaskForm';
 import SearchInput from './SearchInput';
 import FilterPanel from './FilterPanel';
 import SortDropdown, { SortField, SortOrder } from './SortDropdown';
-import { Plus, Loader2, Inbox, SearchX, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Loader2, Inbox, SearchX, Filter, ChevronDown, ChevronUp, Wifi, WifiOff } from 'lucide-react';
 import type { Tag, Priority } from '@/types/task';
 import { useDebounce } from '@/hooks/useDebounce';
 
@@ -30,6 +31,14 @@ export default function TaskList() {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+
+    // SSE real-time updates context
+    let sseContext: { connectionState: string; onTaskRefresh: (cb: () => void) => () => void } | null = null;
+    try {
+        sseContext = useSSEContext();
+    } catch {
+        // SSE context not available (provider not mounted), continue without it
+    }
 
     const [tasks, setTasks] = useState<Task[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
@@ -134,15 +143,29 @@ export default function TaskList() {
     }, [debouncedSearch, filters, sortConfig]);
 
     const fetchTasks = async () => {
-        if (!token) return;
+        if (!token) {
+            console.log("fetchTasks: No token, skipping");
+            setLoading(false);
+            return;
+        }
+        console.log("fetchTasks: Starting with token:", token.substring(0, 20) + "...");
         try {
-            const queryString = buildApiQuery();
-            const endpoint = queryString ? `/api/tasks?${queryString}` : '/api/tasks';
-            const tasksFromApi = await APIClient.get<Task[]>(endpoint, token);
+            // Build query parameters
+            const taskFilters = {
+                search: debouncedSearch || undefined,
+                status: filters.status !== "all" ? filters.status : undefined,
+                priority: filters.priorities.length > 0 ? filters.priorities : undefined,
+                tags: filters.tagIds.length > 0 ? filters.tagIds : undefined,
+                overdue: filters.overdue || undefined,
+                sort_by: sortConfig.sortBy || undefined,
+                order: sortConfig.order,
+            };
+            const tasksFromApi = await APIClient.getTasks(taskFilters, token);
+            console.log("fetchTasks: Success, got", tasksFromApi?.length || 0, "tasks");
             setTasks(tasksFromApi || []);
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Failed to fetch tasks";
-            console.error("Failed to fetch tasks:", message);
+            console.error("Failed to fetch tasks:", message, error);
             alert(message);
         } finally {
             setLoading(false);
@@ -177,6 +200,18 @@ export default function TaskList() {
         }
     }, [user, token, debouncedSearch, filters.status, filters.priorities.join(","), filters.tagIds.join(","), filters.overdue, sortConfig.sortBy, sortConfig.order]);
 
+    // Register for SSE auto-refresh
+    useEffect(() => {
+        if (!sseContext) return;
+
+        const unsubscribe = sseContext.onTaskRefresh(() => {
+            console.log("[TaskList] SSE triggered refresh");
+            fetchTasks();
+        });
+
+        return unsubscribe;
+    }, [sseContext]);
+
     const handleEdit = (task: Task) => {
         setEditingTask(task);
         setIsFormOpen(true);
@@ -200,7 +235,30 @@ export default function TaskList() {
         <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">My Tasks</h1>
+                    <div className="flex items-center gap-2">
+                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">My Tasks</h1>
+                        {sseContext && (
+                            <span
+                                className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                                    sseContext.connectionState === "connected"
+                                        ? "bg-green-100 text-green-700"
+                                        : sseContext.connectionState === "connecting"
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-slate-100 text-slate-500"
+                                }`}
+                                title={`Real-time updates: ${sseContext.connectionState}`}
+                            >
+                                {sseContext.connectionState === "connected" ? (
+                                    <Wifi size={12} />
+                                ) : (
+                                    <WifiOff size={12} />
+                                )}
+                                <span className="hidden sm:inline">
+                                    {sseContext.connectionState === "connected" ? "Live" : sseContext.connectionState}
+                                </span>
+                            </span>
+                        )}
+                    </div>
                     <p className="text-slate-500 mt-1 text-sm sm:text-base">
                         You have {tasks.filter(t => !t.completed).length} incomplete tasks.
                     </p>

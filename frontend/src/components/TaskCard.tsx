@@ -1,8 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { Check, Trash2, Edit2, Clock } from "lucide-react";
+import { Check, Trash2, Edit2, Clock, Repeat } from "lucide-react";
 import APIClient from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import PriorityBadge from "./PriorityBadge";
+import TagBadge from "./TagBadge";
+import DueDateBadge from "./DueDateBadge";
+import type { Priority, Tag, RecurrenceRule } from "@/types/task";
+import { isOverdue } from "@/lib/utils";
 
 interface Task {
   id: number;
@@ -11,6 +16,11 @@ interface Task {
   completed: boolean;
   created_at: string;
   updated_at: string;
+  priority?: Priority;
+  tags?: Tag[];
+  due_date?: string | null;
+  is_recurring?: boolean;
+  recurrence_rule?: RecurrenceRule | null;
 }
 
 interface TaskCardProps {
@@ -28,6 +38,9 @@ export default function TaskCard({ task, onUpdate, onEdit }: TaskCardProps) {
     month: "short",
     day: "numeric",
   });
+
+  // Check if task is overdue
+  const taskOverdue = task.due_date && !task.completed && isOverdue(task.due_date);
 
   // Toggle complete status
   const toggleComplete = async () => {
@@ -70,8 +83,12 @@ export default function TaskCard({ task, onUpdate, onEdit }: TaskCardProps) {
 
   return (
     <div
-      className={`group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-slate-100 p-5 flex flex-col justify-between h-full ${
-        task.completed ? "opacity-75 bg-slate-50" : ""
+      className={`group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-5 flex flex-col justify-between h-full ${
+        task.completed
+          ? "opacity-75 bg-slate-50 border border-slate-100"
+          : taskOverdue
+          ? "border-2 border-red-300 bg-red-50/30"
+          : "border border-slate-100"
       }`}
     >
       <div>
@@ -107,15 +124,29 @@ export default function TaskCard({ task, onUpdate, onEdit }: TaskCardProps) {
           </div>
         </div>
 
-        <h3
-          className={`font-semibold text-lg mb-2 leading-tight ${
-            task.completed
-              ? "text-slate-500 line-through decoration-slate-400"
-              : "text-slate-800"
-          }`}
-        >
-          {task.title}
-        </h3>
+        <div className="flex items-center gap-2 mb-2">
+          <h3
+            className={`font-semibold text-lg leading-tight ${
+              task.completed
+                ? "text-slate-500 line-through decoration-slate-400"
+                : "text-slate-800"
+            }`}
+          >
+            {task.title}
+          </h3>
+          {task.priority && (
+            <PriorityBadge priority={task.priority} size="sm" />
+          )}
+          {task.is_recurring && (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700"
+              title={`Repeats ${task.recurrence_rule || "regularly"}`}
+            >
+              <Repeat className="w-3 h-3" />
+              <span className="hidden sm:inline">{task.recurrence_rule || "recurring"}</span>
+            </span>
+          )}
+        </div>
         <p
           className={`text-sm leading-relaxed ${
             task.completed ? "text-slate-400" : "text-slate-600"
@@ -123,11 +154,29 @@ export default function TaskCard({ task, onUpdate, onEdit }: TaskCardProps) {
         >
           {task.description || "No description"}
         </p>
+
+        {/* Tags */}
+        {task.tags && task.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-3">
+            {task.tags.map((tag) => (
+              <TagBadge key={tag.id} tag={tag} size="sm" />
+            ))}
+          </div>
+        )}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-400 font-medium">
-        <Clock className="w-3.5 h-3.5" />
-        <span>{date}</span>
+      <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+          <Clock className="w-3.5 h-3.5" />
+          <span>{date}</span>
+        </div>
+        {task.due_date && (
+          <DueDateBadge
+            dueDate={task.due_date}
+            completed={task.completed}
+            size="sm"
+          />
+        )}
       </div>
     </div>
   );

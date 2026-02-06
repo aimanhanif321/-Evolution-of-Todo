@@ -1,0 +1,139 @@
+# Kafka Topic Definitions for Taskora
+#
+# These topics are auto-created by Redpanda/Kafka when first used.
+# This file documents the expected topics and their configurations.
+#
+# To manually create topics with specific settings, use rpk:
+#   rpk topic create task-events --partitions 3 --replicas 1
+#
+# Production recommendations:
+#   - Use replication factor of 3 for HA (requires 3+ brokers)
+#   - Adjust partition count based on consumer parallelism needs
+#   - Configure retention based on compliance requirements
+
+---
+# Task Events Topic
+# Published when tasks are created, updated, or deleted
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-task-events
+  namespace: taskora
+  annotations:
+    description: "Task lifecycle events (created, updated, deleted)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "taskora-redpanda.taskora.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "taskora-task-consumers"
+    - name: initialOffset
+      value: "oldest"
+    # Topic configuration
+    - name: topic
+      value: "task-events"
+    # Retention: 7 days (in ms)
+    - name: "retention.ms"
+      value: "604800000"
+---
+# User Events Topic
+# Published when users login, logout, or register
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-user-events
+  namespace: taskora
+  annotations:
+    description: "User activity events (login, logout, registered)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "taskora-redpanda.taskora.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "taskora-user-consumers"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "user-events"
+    # Retention: 30 days (in ms)
+    - name: "retention.ms"
+      value: "2592000000"
+---
+# Chat Events Topic
+# Published when chat messages are sent and AI responses received
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-chat-events
+  namespace: taskora
+  annotations:
+    description: "Chat conversation events (message_sent, response_received)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "taskora-redpanda.taskora.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "taskora-chat-consumers"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "chat-events"
+    # Retention: 14 days (in ms)
+    - name: "retention.ms"
+      value: "1209600000"
+---
+# Reminder Events Topic
+# Published when task reminders are triggered
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-reminder-events
+  namespace: taskora
+  annotations:
+    description: "Task reminder events (reminder triggered)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "taskora-redpanda.taskora.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "taskora-reminder-consumers"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "reminder-events"
+    # Retention: 3 days (in ms)
+    - name: "retention.ms"
+      value: "259200000"
+---
+# System Events Topic
+# Published for system-wide events (deployments, maintenance, alerts)
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: topic-system-events
+  namespace: taskora
+  annotations:
+    description: "System events (deployments, maintenance, alerts)"
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "taskora-redpanda.taskora.svc.cluster.local:9092"
+    - name: consumerGroup
+      value: "taskora-system-consumers"
+    - name: initialOffset
+      value: "oldest"
+    - name: topic
+      value: "system-events"
+    # Retention: 30 days (in ms)
+    - name: "retention.ms"
+      value: "2592000000"

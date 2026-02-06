@@ -1,5 +1,7 @@
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
+import { SSEProvider } from '@/context/SSEContext';
+import { NotificationProvider } from '@/components/NotificationProvider';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
@@ -18,7 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <SSEProvider>
+            <NotificationProvider>{children}</NotificationProvider>
+          </SSEProvider>
+        </AuthProvider>
       </body>
     </html>
   );

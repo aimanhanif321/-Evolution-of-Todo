@@ -1,45 +1,112 @@
 version: '3.8'
 
-services:
-  database:
-    image: postgres:15-alpine
-    container_name: taskora-database
-    environment:
-      POSTGRES_USER: taskora
-      POSTGRES_PASSWORD: taskora-dev-password
-      POSTGRES_DB: taskora
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U taskora"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+# =============================================================================
+# Taskora Development Docker Compose
+# =============================================================================
+# Backend connects to remote Neon DB via DATABASE_URL in backend/.env
+# Local database is optional and commented out
+# Hot-reload enabled for both frontend and backend
 
+services:
+  # ---------------------------------------------------------------------------
+  # Backend: FastAPI + Python (connects to Neon DB via DATABASE_URL)
+  # ---------------------------------------------------------------------------
   backend:
-    image: taskora/backend:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: taskora-backend
     env_file:
       - ./backend/.env
     environment:
-      DATABASE_URL: postgresql://taskora:taskora-dev-password@database:5432/taskora
+      # Override from .env for Docker compatibility (Windows path issues)
+      DATABASE_URL: ${DATABASE_URL:-postgresql://neondb_owner:npg_NGZI75qibeHo@ep-polished-bar-a1cdcy0x-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require}
+      APP_ENV: development
+      DEBUG: "true"
+      PYTHONUNBUFFERED: "1"
     ports:
       - "8000:8000"
-    depends_on:
-      database:
-        condition: service_healthy
+    volumes:
+      # Hot-reload: mount source code (not read-only for __pycache__)
+      - ./backend/src:/app/src
+      - ./backend/alembic:/app/alembic
+    # Development command with hot-reload
+    command: >
+      uvicorn src.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --reload-dir /app/src
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 10s
+      start_period: 30s
+      retries: 5
+    restart: unless-stopped
 
+  # ---------------------------------------------------------------------------
+  # Frontend: Next.js + React
+  # ---------------------------------------------------------------------------
   frontend:
-    image: taskora/frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev  # Use dev stage for development (has node_modules + source)
     container_name: taskora-frontend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
+      NODE_ENV: development
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Windows/WSL2 file watching - enable polling
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "1000"
     ports:
       - "3000:3000"
+    volumes:
+      # Hot-reload: mount entire frontend folder for consistency
+      - ./frontend:/app
+      # Preserve node_modules from container (don't use host's)
+      - /app/node_modules
+      # Use named volume for .next cache
+      - frontend_next_cache:/app/.next
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    # Use Turbopack (Next.js 16 default) - config updated to support it
+    command: ["npm", "run", "dev"]
+    working_dir: /app
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
 
+  # ---------------------------------------------------------------------------
+  # Redis: State Store and Caching (optional, for local Dapr state)
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: taskora-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+# =============================================================================
+# Volumes
+# =============================================================================
 volumes:
-  postgres_data:
+  frontend_next_cache:  # Persist Next.js build cache
+  redis_data:  # Persist Redis data

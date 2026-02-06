@@ -1,0 +1,519 @@
+openapi: 3.1.0
+info:
+  title: Taskora API
+  description: Phase V Advanced Cloud Deployment - Task Management API
+  version: 5.0.0
+  contact:
+    name: Taskora Team
+
+servers:
+  - url: http://localhost:8000
+    description: Local development
+  - url: https://api.taskora.app
+    description: Production
+
+tags:
+  - name: Tasks
+    description: Task CRUD and management
+  - name: Tags
+    description: Tag management
+  - name: Reminders
+    description: Reminder processing (internal)
+  - name: Events
+    description: Real-time event streaming
+  - name: Health
+    description: Health and observability
+
+paths:
+  /api/tasks:
+    get:
+      tags: [Tasks]
+      summary: List tasks with filters
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, urgent]
+        - name: tag_ids
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: overdue
+          in: query
+          schema:
+            type: boolean
+        - name: due_before
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: due_after
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+            enum: [created_at, due_date, priority, title]
+            default: created_at
+        - name: sort_order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+            maximum: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Task list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+
+    post:
+      tags: [Tasks]
+      summary: Create a new task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '422':
+          description: Validation error
+
+  /api/tasks/{task_id}:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      tags: [Tasks]
+      summary: Get task by ID
+      responses:
+        '200':
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+
+    put:
+      tags: [Tasks]
+      summary: Update task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdate'
+      responses:
+        '200':
+          description: Task updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task not found
+
+    delete:
+      tags: [Tasks]
+      summary: Delete task
+      responses:
+        '204':
+          description: Task deleted
+        '404':
+          description: Task not found
+
+  /api/tasks/{task_id}/complete:
+    parameters:
+      - name: task_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    post:
+      tags: [Tasks]
+      summary: Mark task as complete
+      responses:
+        '200':
+          description: Task completed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  task:
+                    $ref: '#/components/schemas/Task'
+                  recurredTask:
+                    $ref: '#/components/schemas/Task'
+                    nullable: true
+                    description: New task if recurring
+
+  /api/tags:
+    get:
+      tags: [Tags]
+      summary: List user tags
+      responses:
+        '200':
+          description: Tag list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Tag'
+
+    post:
+      tags: [Tags]
+      summary: Create a new tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreate'
+      responses:
+        '201':
+          description: Tag created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+
+  /api/tags/{tag_id}:
+    parameters:
+      - name: tag_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    put:
+      tags: [Tags]
+      summary: Update tag
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TagCreate'
+      responses:
+        '200':
+          description: Tag updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+
+    delete:
+      tags: [Tags]
+      summary: Delete tag
+      responses:
+        '204':
+          description: Tag deleted
+
+  /api/reminders/check:
+    post:
+      tags: [Reminders]
+      summary: Check and process due reminders (cron-triggered)
+      description: Called by Dapr cron binding every minute
+      responses:
+        '200':
+          description: Reminders processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                    description: Number of reminders sent
+
+  /api/recurrence/check:
+    post:
+      tags: [Reminders]
+      summary: Check and process recurring tasks (cron-triggered)
+      description: Called by Dapr cron binding every minute
+      responses:
+        '200':
+          description: Recurrences processed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  processed:
+                    type: integer
+                    description: Number of recurring tasks generated
+
+  /api/events/stream:
+    get:
+      tags: [Events]
+      summary: Server-Sent Events stream for real-time updates
+      responses:
+        '200':
+          description: SSE stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /health:
+    get:
+      tags: [Health]
+      summary: Liveness check
+      responses:
+        '200':
+          description: Application is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+
+  /ready:
+    get:
+      tags: [Health]
+      summary: Readiness check
+      responses:
+        '200':
+          description: Application is ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  database:
+                    type: string
+                  redis:
+                    type: string
+
+  /metrics:
+    get:
+      tags: [Health]
+      summary: Prometheus metrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    Task:
+      type: object
+      required: [id, title, status, priority, user_id, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        recurrence_pattern:
+          type: string
+          enum: [daily, weekly, monthly, custom]
+          nullable: true
+        recurrence_config:
+          type: object
+          nullable: true
+        reminder_at:
+          type: string
+          format: date-time
+          nullable: true
+        reminder_sent:
+          type: boolean
+        user_id:
+          type: string
+          format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TaskCreate:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+          default: medium
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        recurrence_pattern:
+          type: string
+          enum: [daily, weekly, monthly, custom]
+          nullable: true
+        recurrence_config:
+          type: object
+          nullable: true
+        reminder_at:
+          type: string
+          format: date-time
+          nullable: true
+        tag_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    TaskUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [pending, in_progress, completed]
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        recurrence_pattern:
+          type: string
+          enum: [daily, weekly, monthly, custom]
+          nullable: true
+        recurrence_config:
+          type: object
+          nullable: true
+        reminder_at:
+          type: string
+          format: date-time
+          nullable: true
+        tag_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    Tag:
+      type: object
+      required: [id, name, color, user_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 50
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+        user_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+
+    TagCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+        color:
+          type: string
+          pattern: '^#[0-9A-Fa-f]{6}$'
+          default: '#6b7280'

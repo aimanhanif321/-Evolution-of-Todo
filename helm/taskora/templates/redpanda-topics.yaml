@@ -1,0 +1,97 @@
+{{- if .Values.redpanda.enabled }}
+# Redpanda Topic Creation Job
+# Creates required Kafka topics after Redpanda is deployed
+# Uses rpk CLI to create topics with proper configuration
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "taskora.fullname" . }}-create-topics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "taskora.labels" . | nindent 4 }}
+    app.kubernetes.io/component: redpanda-setup
+  annotations:
+    # Run as post-install and post-upgrade hook
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  # Retry up to 3 times if topic creation fails
+  backoffLimit: 3
+  # Allow 5 minutes for job completion
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        {{- include "taskora.labels" . | nindent 8 }}
+        app.kubernetes.io/component: redpanda-setup
+    spec:
+      restartPolicy: Never
+      # Wait for Redpanda to be ready
+      initContainers:
+        - name: wait-for-redpanda
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for Redpanda to be ready..."
+              until nc -z {{ .Values.redpanda.serviceName | default "taskora-redpanda" }}.{{ .Release.Namespace }}.svc.cluster.local 9092; do
+                echo "Redpanda not ready yet, waiting..."
+                sleep 5
+              done
+              echo "Redpanda is ready!"
+      containers:
+        - name: create-topics
+          image: {{ .Values.redpanda.image.repository | default "docker.redpanda.com/redpandadata/redpanda" }}:{{ .Values.redpanda.image.tag | default "v23.2.18" }}
+          command:
+            - /bin/bash
+            - -c
+            - |
+              set -e
+              BROKER="{{ .Values.redpanda.serviceName | default "taskora-redpanda" }}.{{ .Release.Namespace }}.svc.cluster.local:9092"
+
+              echo "Creating Kafka topics on $BROKER..."
+
+              # Define topics with their configurations
+              # Format: topic_name:partitions:retention_ms
+              declare -A TOPICS=(
+                ["task-events"]="3:604800000"
+                ["user-events"]="2:2592000000"
+                ["chat-events"]="2:1209600000"
+                ["reminder-events"]="2:259200000"
+                ["system-events"]="1:2592000000"
+              )
+
+              for topic in "${!TOPICS[@]}"; do
+                IFS=':' read -r partitions retention <<< "${TOPICS[$topic]}"
+
+                echo "Creating topic: $topic (partitions=$partitions, retention=${retention}ms)"
+
+                # Check if topic exists
+                if rpk topic list --brokers "$BROKER" | grep -q "^$topic"; then
+                  echo "Topic $topic already exists, skipping..."
+                else
+                  rpk topic create "$topic" \
+                    --brokers "$BROKER" \
+                    --partitions "$partitions" \
+                    --replicas {{ .Values.redpanda.replicas | default 1 }} \
+                    --config "retention.ms=$retention" \
+                    --config "cleanup.policy=delete" \
+                    --config "compression.type=lz4"
+                  echo "Created topic: $topic"
+                fi
+              done
+
+              echo "All topics created successfully!"
+              echo ""
+              echo "Topic list:"
+              rpk topic list --brokers "$BROKER"
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+{{- end }}

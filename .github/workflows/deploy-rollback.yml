@@ -1,0 +1,221 @@
+name: Rollback Deployment
+
+# Manual rollback workflow for production and staging environments
+# Triggered via GitHub Actions UI only (workflow_dispatch)
+#
+# Usage:
+# 1. Go to Actions tab in GitHub
+# 2. Select "Rollback Deployment" workflow
+# 3. Click "Run workflow"
+# 4. Select environment and revision to rollback to
+#
+# Supports:
+# - Rolling back to specific Helm revision number
+# - Rolling back to previous release (default)
+# - Both production and staging environments
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to rollback"
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+        default: production
+      revision:
+        description: "Helm revision to rollback to (leave empty for previous release)"
+        required: false
+        default: ""
+      confirm:
+        description: "Type 'ROLLBACK' to confirm"
+        required: true
+        default: ""
+
+env:
+  CLUSTER_NAME: taskora-cluster
+
+jobs:
+  validate:
+    name: Validate Rollback Request
+    runs-on: ubuntu-latest
+    outputs:
+      namespace: ${{ steps.config.outputs.namespace }}
+      release: ${{ steps.config.outputs.release }}
+    steps:
+      - name: Validate confirmation
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "ROLLBACK" ]; then
+            echo "::error::Rollback not confirmed. Please type 'ROLLBACK' to confirm."
+            exit 1
+          fi
+
+      - name: Set environment config
+        id: config
+        run: |
+          if [ "${{ github.event.inputs.environment }}" == "production" ]; then
+            echo "namespace=taskora" >> $GITHUB_OUTPUT
+            echo "release=taskora" >> $GITHUB_OUTPUT
+          else
+            echo "namespace=taskora-staging" >> $GITHUB_OUTPUT
+            echo "release=taskora-staging" >> $GITHUB_OUTPUT
+          fi
+
+  rollback:
+    name: Execute Rollback
+    runs-on: ubuntu-latest
+    needs: validate
+    environment: ${{ github.event.inputs.environment }}
+    concurrency:
+      group: ${{ github.event.inputs.environment }}-deploy
+      cancel-in-progress: false
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Configure kubectl
+        run: |
+          doctl kubernetes cluster kubeconfig save ${{ env.CLUSTER_NAME }}
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.13.0"
+
+      - name: Get current release info
+        id: current
+        run: |
+          echo "=== Current Release Status ==="
+          helm status ${{ needs.validate.outputs.release }} -n ${{ needs.validate.outputs.namespace }}
+
+          echo ""
+          echo "=== Release History ==="
+          helm history ${{ needs.validate.outputs.release }} -n ${{ needs.validate.outputs.namespace }} --max 10
+
+          CURRENT_REVISION=$(helm history ${{ needs.validate.outputs.release }} -n ${{ needs.validate.outputs.namespace }} -o json | jq -r '.[-1].revision')
+          echo "current_revision=$CURRENT_REVISION" >> $GITHUB_OUTPUT
+          echo "Current revision: $CURRENT_REVISION"
+
+      - name: Determine target revision
+        id: target
+        run: |
+          if [ -n "${{ github.event.inputs.revision }}" ]; then
+            TARGET_REVISION="${{ github.event.inputs.revision }}"
+          else
+            # Get the previous revision (current - 1)
+            TARGET_REVISION=$(({{ steps.current.outputs.current_revision }} - 1))
+          fi
+
+          if [ "$TARGET_REVISION" -lt 1 ]; then
+            echo "::error::No previous revision available to rollback to"
+            exit 1
+          fi
+
+          echo "target_revision=$TARGET_REVISION" >> $GITHUB_OUTPUT
+          echo "Rolling back to revision: $TARGET_REVISION"
+
+      - name: Execute rollback
+        run: |
+          echo "Rolling back ${{ needs.validate.outputs.release }} to revision ${{ steps.target.outputs.target_revision }}..."
+
+          helm rollback ${{ needs.validate.outputs.release }} ${{ steps.target.outputs.target_revision }} \
+            -n ${{ needs.validate.outputs.namespace }} \
+            --wait \
+            --timeout 5m
+
+      - name: Verify rollback
+        run: |
+          echo "Verifying rollback..."
+
+          # Get deployment names
+          BACKEND_DEPLOY="${{ needs.validate.outputs.release }}-backend"
+          FRONTEND_DEPLOY="${{ needs.validate.outputs.release }}-frontend"
+
+          # Verify deployments
+          kubectl rollout status deployment/$BACKEND_DEPLOY -n ${{ needs.validate.outputs.namespace }} --timeout=3m
+          kubectl rollout status deployment/$FRONTEND_DEPLOY -n ${{ needs.validate.outputs.namespace }} --timeout=3m
+
+          echo ""
+          echo "=== Pod Status After Rollback ==="
+          kubectl get pods -n ${{ needs.validate.outputs.namespace }} -l app.kubernetes.io/instance=${{ needs.validate.outputs.release }}
+
+      - name: Get rollback result
+        run: |
+          echo "=== Rollback Complete ==="
+          helm status ${{ needs.validate.outputs.release }} -n ${{ needs.validate.outputs.namespace }}
+
+          echo ""
+          echo "=== Updated Release History ==="
+          helm history ${{ needs.validate.outputs.release }} -n ${{ needs.validate.outputs.namespace }} --max 5
+
+      - name: Notify rollback success
+        if: success()
+        run: |
+          echo "::warning title=Rollback Completed::Successfully rolled back ${{ needs.validate.outputs.release }} to revision ${{ steps.target.outputs.target_revision }} in ${{ github.event.inputs.environment }}"
+
+      - name: Notify rollback failure
+        if: failure()
+        run: |
+          echo "::error title=Rollback Failed::Failed to rollback ${{ needs.validate.outputs.release }} in ${{ github.event.inputs.environment }}"
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [validate, rollback]
+    if: always()
+    steps:
+      - name: Create GitHub Issue for Rollback
+        if: needs.rollback.result == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `[ROLLBACK] ${{ github.event.inputs.environment }} rolled back by @${{ github.actor }}`;
+            const body = `## Rollback Executed
+
+            **Environment:** ${{ github.event.inputs.environment }}
+            **Release:** ${{ needs.validate.outputs.release }}
+            **Target Revision:** ${{ github.event.inputs.revision || 'previous' }}
+            **Triggered by:** @${{ github.actor }}
+            **Timestamp:** ${new Date().toISOString()}
+
+            ### Action Required
+            - [ ] Investigate root cause of deployment issue
+            - [ ] Create fix and re-deploy
+            - [ ] Update this issue with findings
+
+            _This issue was automatically created by the rollback workflow._`;
+
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['rollback', 'incident', '${{ github.event.inputs.environment }}']
+            });
+
+      - name: Send Slack notification (if configured)
+        if: always() && env.SLACK_WEBHOOK_URL != ''
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          STATUS="${{ needs.rollback.result == 'success' && 'succeeded' || 'failed' }}"
+          COLOR="${{ needs.rollback.result == 'success' && '#36a64f' || '#dc3545' }}"
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"title\": \"Rollback $STATUS in ${{ github.event.inputs.environment }}\",
+                \"fields\": [
+                  {\"title\": \"Environment\", \"value\": \"${{ github.event.inputs.environment }}\", \"short\": true},
+                  {\"title\": \"Triggered by\", \"value\": \"${{ github.actor }}\", \"short\": true},
+                  {\"title\": \"Target Revision\", \"value\": \"${{ github.event.inputs.revision || 'previous' }}\", \"short\": true}
+                ],
+                \"footer\": \"GitHub Actions\",
+                \"ts\": $(date +%s)
+              }]
+            }" $SLACK_WEBHOOK_URL || echo "Slack notification skipped"

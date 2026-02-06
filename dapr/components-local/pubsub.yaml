@@ -1,0 +1,20 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: taskora-pubsub
+spec:
+  type: pubsub.kafka
+  version: v1
+  metadata:
+    - name: brokers
+      value: "redpanda:9092"
+    - name: consumerGroup
+      value: "taskora-local"
+    - name: authType
+      value: "none"
+    # Local development - disable TLS
+    - name: disableTls
+      value: "true"
+    # Auto-create topics if they don't exist
+    - name: initialOffset
+      value: "oldest"

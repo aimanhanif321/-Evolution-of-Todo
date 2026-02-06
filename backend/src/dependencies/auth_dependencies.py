@@ -72,6 +72,9 @@ async def get_current_user_sse(
     Supports authentication via:
     1. Query parameter `token` (for EventSource which doesn't support headers)
     2. Bearer token in Authorization header (standard method)
+
+    This is needed because the browser's EventSource API does not support
+    custom headers, so we need to accept the token via query parameter.
     """
     # Try query parameter first (for SSE/EventSource)
     if token:

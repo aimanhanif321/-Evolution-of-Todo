@@ -114,43 +114,94 @@
 //     );
 // }
 "use client";
-"use client";
 
 import React, { useState, useEffect } from "react";
 import APIClient from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { X, Loader2 } from "lucide-react";
+import type { Priority, Tag, RecurrenceRule } from "@/types/task";
+import { PRIORITY_COLORS } from "@/types/task";
+import TagInput from "./TagInput";
+import DateTimePicker from "./DateTimePicker";
+import RecurrenceSelector from "./RecurrenceSelector";
+import ReminderSelector from "./ReminderSelector";
 
 interface Task {
   id: number;
   title: string;
   description?: string;
   completed: boolean;
+  priority?: Priority;
+  tags?: Tag[];
+  due_date?: string | null;
+  reminder_at?: string | null;
+  is_recurring?: boolean;
+  recurrence_rule?: RecurrenceRule | null;
+  recurrence_interval?: number | null;
 }
 
 interface TaskFormProps {
   onClose: () => void;
   onSuccess: () => void;
   editTask?: Task | null;
+  availableTags?: Tag[];
+  onTagCreated?: (tag: Tag) => void;
 }
+
+const PRIORITY_OPTIONS: { value: Priority; label: string }[] = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" },
+];
 
 export default function TaskForm({
   onClose,
   onSuccess,
   editTask,
+  availableTags = [],
+  onTagCreated,
 }: TaskFormProps) {
   const { token } = useAuth();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<Priority>("medium");
+  const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
+  const [dueDate, setDueDate] = useState<string | null>(null);
+  const [reminderAt, setReminderAt] = useState<string | null>(null);
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null);
+  const [recurrenceInterval, setRecurrenceInterval] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editTask) {
       setTitle(editTask.title);
       setDescription(editTask.description || "");
+      setPriority(editTask.priority || "medium");
+      setSelectedTagIds(editTask.tags?.map((t) => t.id) || []);
+      setDueDate(editTask.due_date || null);
+      setReminderAt(editTask.reminder_at || null);
+      setIsRecurring(editTask.is_recurring || false);
+      setRecurrenceRule(editTask.recurrence_rule || null);
+      setRecurrenceInterval(editTask.recurrence_interval || null);
     }
   }, [editTask]);
+
+  const handleCreateTag = async (name: string): Promise<Tag | null> => {
+    if (!token) return null;
+    try {
+      const newTag = await APIClient.createTag({ name }, token);
+      if (onTagCreated) {
+        onTagCreated(newTag);
+      }
+      return newTag;
+    } catch (err) {
+      console.error("Failed to create tag:", err);
+      return null;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,12 +214,17 @@ export default function TaskForm({
 
     try {
       const payload = {
-  title: title.trim(),
-  description: description.trim(),
-  completed: editTask?.completed ?? false,  // ✅ use ?? fallback
-  
-
-};
+        title: title.trim(),
+        description: description.trim(),
+        completed: editTask?.completed ?? false,
+        priority: priority,
+        tag_ids: selectedTagIds,
+        due_date: dueDate,
+        reminder_at: dueDate ? reminderAt : null, // Clear reminder if no due date
+        is_recurring: isRecurring,
+        recurrence_rule: isRecurring ? recurrenceRule : null,
+        recurrence_interval: isRecurring && recurrenceRule === "custom" ? recurrenceInterval : null,
+      };
 
       if (editTask) {
         await APIClient.put(`/api/tasks/${editTask.id}`, payload, token);
@@ -216,6 +272,74 @@ export default function TaskForm({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
+
+          {/* Priority Selector */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700">Priority</label>
+            <div className="flex gap-2">
+              {PRIORITY_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setPriority(option.value)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    priority === option.value
+                      ? "ring-2 ring-offset-1"
+                      : "opacity-60 hover:opacity-100"
+                  }`}
+                  style={{
+                    backgroundColor: `${PRIORITY_COLORS[option.value]}20`,
+                    color: PRIORITY_COLORS[option.value],
+                    borderColor: PRIORITY_COLORS[option.value],
+                    ...(priority === option.value && {
+                      ringColor: PRIORITY_COLORS[option.value],
+                    }),
+                  }}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tag Selector */}
+          <TagInput
+            availableTags={availableTags}
+            selectedTagIds={selectedTagIds}
+            onChange={setSelectedTagIds}
+            onCreateTag={handleCreateTag}
+          />
+
+          {/* Due Date Picker */}
+          <DateTimePicker
+            value={dueDate}
+            onChange={(newDueDate) => {
+              setDueDate(newDueDate);
+              // Clear reminder if due date is cleared
+              if (!newDueDate) {
+                setReminderAt(null);
+              }
+            }}
+            label="Due Date"
+          />
+
+          {/* Reminder Selector (only visible when due date is set) */}
+          <ReminderSelector
+            dueDate={dueDate}
+            reminderAt={reminderAt}
+            onChange={setReminderAt}
+          />
+
+          {/* Recurring Task Options */}
+          <RecurrenceSelector
+            isRecurring={isRecurring}
+            recurrenceRule={recurrenceRule}
+            recurrenceInterval={recurrenceInterval}
+            onIsRecurringChange={setIsRecurring}
+            onRecurrenceRuleChange={setRecurrenceRule}
+            onRecurrenceIntervalChange={setRecurrenceInterval}
+          />
+
           <button
             type="submit"
             disabled={loading}
