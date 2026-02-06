@@ -207,4 +207,4 @@ This project follows an API-first architecture with clear separation between fro
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the LICENSE file for details....
